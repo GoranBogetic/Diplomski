@@ -1,1 +1,5 @@
 https://www.kaggle.com/datasets/marquis03/plants-classification
+
+Delete pytorch-env -> Not needed
+
+Database will need revamping

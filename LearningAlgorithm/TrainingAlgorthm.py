@@ -103,17 +103,18 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=NUM_EPOCHS)
     model.load_state_dict(best_model_wts)
     return model, train_loss_history, val_loss_history
 
-# ✅ Train!
-dataloaders = {'train': train_loader, 'val': val_loader}
-model, train_loss, val_loss = train_model(model, dataloaders, criterion, optimizer)
+if __name__ == "__main__":
+    # ✅ Train!
+    dataloaders = {'train': train_loader, 'val': val_loader}
+    model, train_loss, val_loss = train_model(model, dataloaders, criterion, optimizer)
 
-# ✅ Save model
-torch.save(model.state_dict(), 'plant_classifier_efficientnetb0.pth')
-print("Model saved!")
+    # ✅ Save model
+    torch.save(model.state_dict(), 'plant_classifier_efficientnetb0.pth')
+    print("Model saved!")
 
-# ✅ Optional: plot training curves
-plt.plot(train_loss, label='Train Loss')
-plt.plot(val_loss, label='Val Loss')
-plt.legend()
-plt.title('Loss over Epochs')
-plt.show()
+    # ✅ Optional: plot training curves
+    plt.plot(train_loss, label='Train Loss')
+    plt.plot(val_loss, label='Val Loss')
+    plt.legend()
+    plt.title('Loss over Epochs')
+    plt.show()
