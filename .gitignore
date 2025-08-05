@@ -1,0 +1,4 @@
+# .gitignore for the project
+Database/test/
+Database/train/
+Database/val/
