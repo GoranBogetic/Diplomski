@@ -30,3 +30,9 @@ BATCH_SIZE = 64
 NUM_OF_EPOCHS = 30
 LEARNING_RATE = 1e-4 
 => Best val Acc: 
+
+
+BATCH_SIZE = 128
+NUM_OF_EPOCHS = 40
+LEARNING_RATE = 5e-4 
+=> Best val Acc: 
