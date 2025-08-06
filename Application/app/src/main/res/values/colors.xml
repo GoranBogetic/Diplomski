@@ -1,0 +1,11 @@
+<resources>
+    <color name="primary">#4CAF50</color> <!-- Light Green -->
+    <color name="primaryVariant">#388E3C</color> <!-- Darker Green -->
+    <color name="secondary">#A5D6A7</color> <!-- Accent Green -->
+    <color name="background">#FFFFFF</color> <!-- White -->
+    <color name="surface">#F1F8E9</color> <!-- Light planty background -->
+    <color name="onPrimary">#FFFFFF</color> <!-- White text on green -->
+    <color name="onSecondary">#000000</color> <!-- Black text on secondary -->
+    <color name="onBackground">#000000</color>
+    <color name="onSurface">#000000</color>
+</resources>
