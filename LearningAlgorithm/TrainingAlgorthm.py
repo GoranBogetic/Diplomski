@@ -9,8 +9,10 @@ import matplotlib.pyplot as plt
 
 # PyTorch configuration
 DATABASE_DIR = os.path.join(os.path.dirname(__file__), '../Database')
-BATCH_SIZE = 32
-NUM_OF_EPOCHS = 20
+TRAINING_FEEDBACK_DIR = os.path.join(os.path.dirname(__file__), '../TrainingFeedback')
+MODELS_DIR = os.path.join(os.path.dirname(__file__), '../Models')
+BATCH_SIZE = 64
+NUM_OF_EPOCHS = 30
 NUM_OF_WORKERS = 8
 LEARNING_RATE = 1e-4
 # Ran on Laptop RTX 4060
@@ -60,12 +62,15 @@ lossFunction = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 # Model Training Function
-def modelTraining(model, dataloaders, criterion, optimizer, numOfEpochs=NUM_OF_EPOCHS):
+def modelTraining(model, dataloaders, criterion, optimizer, numOfEpochs=NUM_OF_EPOCHS, patience=5):
     bestModelWeights = copy.deepcopy(model.state_dict())
     bestValidationAccuracy = 0.0
     trainLossHistory = []
     valLossHistory = []
     valAccuracyHistory = []
+
+    bestValLoss = float('inf')
+    epochsWithNoImprovement = 0
 
     for epoch in range(numOfEpochs):
         print(f'\nEpoch {epoch + 1}/{numOfEpochs}')
@@ -104,9 +109,20 @@ def modelTraining(model, dataloaders, criterion, optimizer, numOfEpochs=NUM_OF_E
             else:
                 valLossHistory.append(epochLoss)
                 valAccuracyHistory.append(epochAccuracy.item())
+                # Early stopping logic
+                if epochLoss < bestValLoss:
+                    bestValLoss = epochLoss
+                    epochsWithNoImprovement = 0
+                else:
+                    epochsWithNoImprovement += 1
                 if epochAccuracy > bestValidationAccuracy:
                     bestValidationAccuracy = epochAccuracy
                     bestModelWeights = copy.deepcopy(model.state_dict())
+
+        # Check early stopping condition after each epoch
+        if epochsWithNoImprovement >= patience:
+            print(f"Early stopping triggered at epoch {epoch + 1}")
+            break
 
     print(f'\nBest val Acc: {bestValidationAccuracy:.4f}')
     model.load_state_dict(bestModelWeights)
@@ -115,27 +131,29 @@ def modelTraining(model, dataloaders, criterion, optimizer, numOfEpochs=NUM_OF_E
 if __name__ == "__main__":
     # Training the model
     dataloaders = {'train': trainLoader, 'val': valLoader}
-    model, trainLoss, valLoss, valAccuracyHistory = modelTraining(model, dataloaders, lossFunction, optimizer)
+    model, trainLoss, valLoss, valAccuracyHistory = modelTraining(model, dataloaders, lossFunction, optimizer, numOfEpochs=NUM_OF_EPOCHS, patience=5)
 
     # Ensure directories exist
-    os.makedirs('../Models/Model', exist_ok=True)
+    os.makedirs(MODELS_DIR, exist_ok=True)
 
     # Saving the model weights (.pth)
-    torch.save(model.state_dict(), '../Models/Model/plant_classifier_efficientnetb0.pth')
+    torch.save(model.state_dict(), (os.path.join(MODELS_DIR, 'ModelWeights/plant_classifier_efficientnetb0.pth')))
     print("Model saved!")
 
+    os.makedirs(TRAINING_FEEDBACK_DIR, exist_ok=True)
     # Plotting the training and validation loss
+    plt.figure(figsize=(10, 6))
     plt.plot(trainLoss, label='Train Loss')
     plt.plot(valLoss, label='Val Loss')
+    plt.plot(valAccuracyHistory, label='Val Accuracy')
     plt.legend()
-    plt.title('Loss over Epochs')
+    plt.title('Loss and Validation Accuracy over Epochs')
     plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.savefig('../training_plot.png')  # Save the plot as an image
-    plt.show()
+    plt.ylabel('Value')
+    plt.savefig(os.path.join(TRAINING_FEEDBACK_DIR, 'training_plot.png'))
 
     # Here is how you would save it:
     if 'valAccuracyHistory' in locals():
-        with open('../val_accuracy_per_epoch.txt', 'w') as f:
+        with open(os.path.join(TRAINING_FEEDBACK_DIR, 'val_accuracy_per_epoch.txt'), 'w') as f:
             for i, acc in enumerate(valAccuracyHistory):
                 f.write(f"Epoch {i+1}: {acc:.4f}\n")
