@@ -4,7 +4,9 @@ import os
 
 # Path to your dataset and model weights
 DATA_DIR = os.path.join(os.path.dirname(__file__), '../Database')
-MODEL_WEIGHTS = '../Models/Model/plant_classifier_efficientnetb0.pth'
+MODEL_WEIGHTS = os.path.join(os.path.dirname(__file__), '../Models/ModelWeights/plant_classifier_efficientnetb0.pth')
+ANDROID_MODEL_DIR = os.path.join(os.path.dirname(__file__), '../Models/AndroidModel')
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Minimal transform for dataset loading
 transform = transforms.Compose([transforms.ToTensor()])
@@ -19,15 +21,15 @@ model = models.efficientnet_b0(pretrained=False)
 model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, NUM_CLASSES)
 
 # Load trained weights
-model.load_state_dict(torch.load(MODEL_WEIGHTS, map_location='cpu'))
+model.load_state_dict(torch.load(MODEL_WEIGHTS, map_location=DEVICE))
 model.eval()
 
 # Example input for tracing (batch size 1, 3 channels, 224x224)
-example_input = torch.rand(1, 3, 224, 224)
+exampleInput = torch.rand(1, 3, 224, 224)
 
 # Convert to TorchScript (for Android)
-os.makedirs('../Models/AndroidModel', exist_ok=True)
-traced_script_module = torch.jit.trace(model, example_input)
-traced_script_module.save('../Models/AndroidModel/plant_classifier_efficientnetb0.pt')
+os.makedirs(ANDROID_MODEL_DIR, exist_ok=True)
+tracedScriptModule = torch.jit.trace(model, exampleInput)
+tracedScriptModule.save(os.path.join(ANDROID_MODEL_DIR,'plant_classifier_efficientnetb0.pt'))
 
 print("TorchScript model saved as ../Models/AndroidModel/plant_classifier_efficientnetb0.pt")
