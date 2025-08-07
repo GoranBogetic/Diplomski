@@ -1,21 +1,36 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.PlantIdentifier" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <!-- Base application theme. -->
+    <style name="Theme.PlantFinder" parent="Theme.MaterialComponents.DayNight.NoActionBar"> <!-- Or your chosen parent -->
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primaryVariant</item>
-        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorPrimary">@color/brand_green_primary</item>
+        <item name="colorPrimaryVariant">@color/brand_green_dark</item>
+        <item name="colorOnPrimary">@color/neutral_white</item>
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorOnSecondary">@color/onSecondary</item>
+        <!-- You can use another shade of green or a complementary color -->
+        <item name="colorSecondary">@color/brand_green_accent</item>
+        <item name="colorSecondaryVariant">@color/brand_green_dark</item> <!-- Or another shade -->
+        <item name="colorOnSecondary">@color/neutral_black</item>
 
-        <!-- Backgrounds and surfaces -->
-        <item name="android:colorBackground">@color/background</item>
-        <item name="colorSurface">@color/surface</item>
-        <item name="colorOnSurface">@color/onSurface</item>
-        <item name="colorOnBackground">@color/onBackground</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
 
-        <!-- Button styles -->
-        <item name="buttonStyle">@style/Widget.MaterialComponents.Button</item>
+        <!-- Other theme attributes -->
+        <item name="android:colorBackground">@color/neutral_white</item>
+        <item name="colorSurface">@color/neutral_white</item>
+        <item name="colorOnBackground">@color/neutral_black</item>
+        <item name="colorOnSurface">@color/neutral_black</item>
     </style>
+
+    <!-- If you have a separate FullScreen theme, ensure it also uses greens -->
+    <style name="Theme.PlantFinder.FullScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_green_primary</item>
+        <item name="colorPrimaryVariant">@color/brand_green_dark</item>
+        <item name="colorOnPrimary">@color/neutral_white</item>
+        <item name="colorSecondary">@color/brand_green_accent</item>
+        <item name="colorOnSecondary">@color/neutral_black</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
 </resources>

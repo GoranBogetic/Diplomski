@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Layer 1: The Outermost Dark Green Ring -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/shutter_ring_outer_dark_green" />
+            <!-- Define the total size of the button including all rings -->
+            <size
+                android:width="150dp"
+                android:height="150dp" />
+        </shape>
+    </item>
+
+    <!-- Layer 2: The Middle White Ring -->
+    <!-- This is inset from the dark green layer.
+         The inset amount defines the thickness of the outermost dark green ring. -->
+    <item
+        android:top="3dp"
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/shutter_ring_middle_white" />
+        </shape>
+    </item>
+
+    <!-- Layer 3: The Center Green Fill (main button surface) -->
+    <!-- This is inset further from the white layer.
+         The difference in insets between this layer and the previous one
+         defines the thickness of the middle white ring. -->
+    <item
+        android:top="6dp"
+        android:bottom="6dp"
+        android:left="6dp"
+        android:right="6dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/brand_green_primary" />
+        </shape>
+    </item>
+
+    </layer-list>

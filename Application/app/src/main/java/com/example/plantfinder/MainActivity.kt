@@ -5,241 +5,158 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.TextView // Import TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog // Import BottomSheetDialog
 import org.pytorch.IValue
 import org.pytorch.Module
 import org.pytorch.torchvision.TensorImageUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.Locale // Import Locale for string manipulation
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import androidx.compose.ui.unit.height
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var imageCapture: ImageCapture
     private lateinit var cameraExecutor: ExecutorService
-    private lateinit var module: Module
-    private lateinit var labels: List<String>
+    private var module: Module? = null
+    private var labels: List<String>? = null
 
     private val REQUEST_CODE_PERMISSIONS = 10
     private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
-    private val MODEL_ASSET_NAME = "plant_classifier_efficientnetb0.pts"
-    private val LABELS_ASSET_NAME = "labels.txt"
-    private val ASSET_CHECK_TAG = "AssetCheck"
+    companion object {
+        private const val TAG = "PlantFinderMain"
+        private const val MODEL_ASSET_NAME = "plant_classifier_efficientnetb0.pt" // VERIFY THIS EXTENSION
+        private const val LABELS_ASSET_NAME = "labels.txt"
+    }
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_main)
-//
-//        previewView = findViewById(R.id.previewView)
-//        val captureButton: Button = findViewById(R.id.captureButton)
-//
-//        // Request camera permissions
-//        if (allPermissionsGranted()) {
-//            startCamera()
-//        } else {
-//            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
-//        }
-//
-//        // Load model and labels
-//        module = Module.load(assetFilePath(this, "plant_classifier_efficientnetb0.pts"))
-//        labels = assets.open("labels.txt").bufferedReader().readLines()
-//
-//        captureButton.setOnClickListener { takePhoto() }
-//
-//        cameraExecutor = Executors.newSingleThreadExecutor()
-//    }
+    private val plantDescriptions: Map<String, String> = mapOf(
+        "aloevera" to "Aloe Vera is known for its healing and soothing properties, often used for skin treatment.",
+        "banana" to "Banana is a tropical fruit rich in potassium and a staple in many tropical regions.",
+        "bilimbi" to "Bilimbi is a tangy tropical fruit often used in traditional cooking and pickling.",
+        "cantaloupe" to "Cantaloupe is a sweet orange-fleshed melon, high in water content and refreshing.",
+        "cassava" to "Cassava is a starchy root vegetable, a major source of carbohydrates in many tropical countries.",
+        "corn" to "Corn, or maize, is a cereal grain with edible kernels and used in a variety of foods.",
+        "cucumber" to "Cucumber is a hydrating vegetable commonly used in salads and skin care.",
+        "curcuma" to "Curcuma, also known as turmeric, is a root used as a spice with anti-inflammatory properties.",
+        "eggplant" to "Eggplant is a purple vegetable often used in cooking and known for its spongy texture.",
+        "galangal" to "Galangal is a root similar to ginger, commonly used in Southeast Asian cooking.",
+        "ginger" to "Ginger is a spicy root used in food and medicine for its anti-inflammatory effects.",
+        "guava" to "Guava is a tropical fruit rich in vitamin C and fiber, with a sweet and tangy flavor.",
+        "kale" to "Kale is a leafy green vegetable packed with nutrients and antioxidants.",
+        "longbeans" to "Long beans are slender green beans used in stir-fries and traditional dishes.",
+        "mango" to "Mango is a sweet tropical fruit loved for its juicy texture and rich flavor.",
+        "melon" to "Melon refers to various sweet, water-rich fruits such as honeydew and cantaloupe.",
+        "orange" to "Orange is a citrus fruit known for its bright color, vitamin C, and refreshing juice.",
+        "paddy" to "Paddy refers to rice before it is husked — a vital food crop around the world.",
+        "papaya" to "Papaya is a tropical fruit with orange flesh, rich in enzymes that aid digestion.",
+        "peperchili" to "Pepper chili is a spicy fruit used to add heat and flavor to dishes.",
+        "pineapple" to "Pineapple is a tropical fruit with sweet-tart flavor and high vitamin C content.",
+        "pomelo" to "Pomelo is the largest citrus fruit, with a thick rind and mild sweet flesh.",
+        "shallot" to "Shallot is a mild onion-like vegetable used to enhance flavor in cooking.",
+        "soybeans" to "Soybeans are protein-rich legumes used to make tofu, soy milk, and many foods.",
+        "spinach" to "Spinach is a leafy green vegetable rich in iron and vitamins, often eaten cooked or raw.",
+        "sweetpotatoes" to "Sweet potatoes are nutritious tubers with a sweet taste and high in fiber and beta-carotene.",
+        "tobacco" to "Tobacco is a plant whose leaves are used for making products like cigarettes and cigars.",
+        "waterapple" to "Water apple is a crisp, juicy fruit also known as rose apple, common in tropical areas.",
+        "watermelon" to "Watermelon is a refreshing fruit made up mostly of water and loved during hot seasons."
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            window.insetsController?.let {
+//                // Use the android.view.WindowInsets.Type constants directly
+//                it.hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+//                it.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+//            }
+//        } else {
+//            @Suppress("DEPRECATION")
+//            window.decorView.systemUiVisibility = (
+//                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+//                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+//                    )
+//        }
+
         setContentView(R.layout.activity_main)
-
-        // --- START TEMPORARY ASSET DEBUGGING ---
-        Log.d(ASSET_CHECK_TAG, "--- Checking Assets ---")
-        try {
-            val assetList = assets.list("") // List files in the root of the assets folder
-            if (assetList != null && assetList.isNotEmpty()) {
-                Log.d(ASSET_CHECK_TAG, "Files found in assets root:")
-                for (asset in assetList) {
-                    Log.d(ASSET_CHECK_TAG, "- $asset")
-                }
-
-                // Specifically check for your model and labels file
-                if (assetList.contains(MODEL_ASSET_NAME)) {
-                    Log.i(ASSET_CHECK_TAG, "SUCCESS: Model file '$MODEL_ASSET_NAME' found in assets.")
-                } else {
-                    Log.e(ASSET_CHECK_TAG, "ERROR: Model file '$MODEL_ASSET_NAME' NOT FOUND in assets root!")
-                }
-                if (assetList.contains(LABELS_ASSET_NAME)) {
-                    Log.i(ASSET_CHECK_TAG, "SUCCESS: Labels file '$LABELS_ASSET_NAME' found in assets.")
-                } else {
-                    Log.e(ASSET_CHECK_TAG, "ERROR: Labels file '$LABELS_ASSET_NAME' NOT FOUND in assets root!")
-                }
-
-            } else {
-                Log.e(ASSET_CHECK_TAG, "ERROR: Asset folder is empty or inaccessible, or assets.list(\"\") returned null/empty.")
-            }
-        } catch (e: IOException) {
-            Log.e(ASSET_CHECK_TAG, "ERROR: IOException while listing assets", e)
-        }
-        Log.d(ASSET_CHECK_TAG, "--- Finished Checking Assets ---")
-        // --- END TEMPORARY ASSET DEBUGGING ---
 
         previewView = findViewById(R.id.previewView)
         val captureButton: Button = findViewById(R.id.captureButton)
 
-        // Request camera permissions
         if (allPermissionsGranted()) {
             startCamera()
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        // Load model and labels
-        // Use a try-catch block here as well, as assetFilePath can throw an IOException
-        // if the asset is not found (which is the problem you're debugging)
-        try {
-            val modelPath = assetFilePath(this, MODEL_ASSET_NAME)
-            if (modelPath != null) { // assetFilePath now returns nullable if there's an issue
-                module = Module.load(modelPath)
-                Log.i("MainActivity", "Model loaded successfully from: $modelPath")
-            } else {
-                Log.e("MainActivity", "Failed to get model path for '$MODEL_ASSET_NAME'. Model will not be loaded.")
-                // Handle the error appropriately - maybe show a Toast or disable capture button
-                Toast.makeText(this, "Error: Model file not found. Classification disabled.", Toast.LENGTH_LONG).show()
-                // Potentially disable the capture button if the model is essential
-                // captureButton.isEnabled = false
-                // Or you could finish the activity if the app cannot function without the model
-                // finish()
-                // For now, let's proceed and see if labels can be loaded.
-            }
-
-            labels = assets.open(LABELS_ASSET_NAME).bufferedReader().readLines()
-            Log.i("MainActivity", "Labels loaded successfully.")
-
-        } catch (e: IOException) {
-            Log.e("MainActivity", "FATAL ERROR: Could not load model or labels from assets.", e)
-            Toast.makeText(this, "Error: Critical files not found. App may not function.", Toast.LENGTH_LONG).show()
-            // Depending on how critical these files are, you might want to finish the activity
-            // finish()
-        }
-
+        loadModelAndLabels()
 
         captureButton.setOnClickListener { takePhoto() }
-
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
-                startCamera()
-            } else {
-                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-        }
-    }
-
-    private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
-
-            imageCapture = ImageCapture.Builder().build()
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-
-        }, ContextCompat.getMainExecutor(this))
-    }
-
-    private fun takePhoto() {
-        val photoFile = File.createTempFile("plant_", ".jpg", cacheDir)
-
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        imageCapture.takePicture(outputOptions, cameraExecutor,
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
-                    classify(bitmap)
-                }
-
-                override fun onError(exc: ImageCaptureException) {
-                    runOnUiThread {
-                        Toast.makeText(baseContext, "Photo capture failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            })
-    }
-
-    private fun classify(bitmap: Bitmap) {
-        val resized = Bitmap.createScaledBitmap(bitmap, 224, 224, true)
-        val inputTensor = TensorImageUtils.bitmapToFloat32Tensor(
-            resized,
-            TensorImageUtils.TORCHVISION_NORM_MEAN_RGB,
-            TensorImageUtils.TORCHVISION_NORM_STD_RGB
-        )
-        val outputTensor = module.forward(IValue.from(inputTensor)).toTensor()
-        val scores = outputTensor.dataAsFloatArray
-        val maxIdx = scores.indices.maxByOrNull { scores[it] } ?: -1
-        val plantName = labels[maxIdx]
-
-        runOnUiThread {
-            Toast.makeText(this, "Plant: $plantName", Toast.LENGTH_LONG).show()
-        }
-    }
-
-//    private fun assetFilePath(context: Context, assetName: String): String {
-//        val file = File(context.filesDir, assetName)
-//        if (file.exists() && file.length() > 0) return file.absolutePath
-//
-//        context.assets.open(assetName).use { inputStream ->
-//            FileOutputStream(file).use { outputStream ->
-//                val buffer = ByteArray(4 * 1024)
-//                var read: Int
-//                while (inputStream.read(buffer).also { read = it } != -1) {
-//                    outputStream.write(buffer, 0, read)
-//                }
-//                outputStream.flush()
-//            }
-//        }
-//        return file.absolutePath
-//    }
-
-    private fun assetFilePath(context: Context, assetName: String): String? { // Return String?
-        val file = File(context.filesDir, assetName)
-        // Optimization: if file already exists in internal storage, return its path
-        if (file.exists() && file.length() > 0) {
-            Log.d(ASSET_CHECK_TAG, "Asset '$assetName' already exists in internal storage: ${file.absolutePath}")
-            return file.absolutePath
-        }
-
-        // Try to copy the asset from the assets folder to internal storage
+    private fun loadModelAndLabels() {
         try {
-            context.assets.open(assetName).use { inputStream -> // This is where FileNotFoundException can occur
-                FileOutputStream(file).use { outputStream ->
+            val modelPath = assetFilePath(this, MODEL_ASSET_NAME)
+            if (modelPath != null) {
+                module = Module.load(modelPath)
+                Log.i(TAG, "Model loaded successfully from: $modelPath")
+            } else {
+                Log.e(TAG, "Failed to get path for model '$MODEL_ASSET_NAME'. Classification will be unavailable.")
+                Toast.makeText(this, "Error: Model file not found. Classification disabled.", Toast.LENGTH_LONG).show()
+            }
+
+            assets.open(LABELS_ASSET_NAME).bufferedReader().use {
+                labels = it.readLines().map { label -> label.lowercase(Locale.getDefault()) } // Convert labels to lowercase
+            }
+            Log.i(TAG, "Labels ('$LABELS_ASSET_NAME') loaded successfully and converted to lowercase.")
+
+        } catch (e: IOException) {
+            Log.e(TAG, "Error loading model or labels.", e)
+            Toast.makeText(this, "Error: Critical files not found. App may not function as expected.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun assetFilePath(context: Context, assetName: String): String? {
+        val targetFile = File(context.filesDir, assetName)
+        if (targetFile.exists() && targetFile.length() > 0) {
+            Log.d(TAG, "Asset '$assetName' already exists in internal storage: ${targetFile.absolutePath}")
+            return targetFile.absolutePath
+        }
+        Log.d(TAG, "Asset '$assetName' not found or empty in internal storage. Attempting to copy from APK assets.")
+        try {
+            context.assets.open(assetName).use { inputStream ->
+                FileOutputStream(targetFile).use { outputStream ->
                     val buffer = ByteArray(4 * 1024)
                     var read: Int
                     while (inputStream.read(buffer).also { read = it } != -1) {
@@ -248,20 +165,197 @@ class MainActivity : AppCompatActivity() {
                     outputStream.flush()
                 }
             }
-            Log.i(ASSET_CHECK_TAG, "Successfully copied asset '$assetName' to: ${file.absolutePath}")
-            return file.absolutePath
-        } catch (e: IOException) { // Catch IOException which includes FileNotFoundException
-            Log.e(ASSET_CHECK_TAG, "Error copying asset '$assetName' from assets to internal storage.", e)
-            // Optionally, try to delete the partially created file if an error occurred
-            if (file.exists()) {
-                file.delete()
+            Log.i(TAG, "Successfully copied asset '$assetName' from APK to: ${targetFile.absolutePath}")
+            return targetFile.absolutePath
+        } catch (e: IOException) {
+            Log.e(TAG, "Error copying asset '$assetName' from APK assets to internal storage.", e)
+            if (targetFile.exists()) {
+                targetFile.delete()
             }
-            return null // Return null if copying fails
+            return null
         }
+    }
+
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            }
+            imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build()
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                Log.i(TAG, "Camera started successfully.")
+            } catch (exc: Exception) {
+                Log.e(TAG, "Use case binding failed for camera.", exc)
+                Toast.makeText(this, "Failed to start camera.", Toast.LENGTH_SHORT).show()
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun takePhoto() {
+        if (!::imageCapture.isInitialized) {
+            Log.e(TAG, "ImageCapture is not initialized.")
+            Toast.makeText(baseContext, "Camera not ready.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val photoFile = File(externalCacheDir ?: cacheDir, "plant_${System.currentTimeMillis()}.jpg")
+        Log.d(TAG, "Photo will be saved to: ${photoFile.absolutePath}")
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        imageCapture.takePicture(outputOptions, cameraExecutor,
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+                    Log.i(TAG, "Photo capture succeeded: $savedUri")
+                    try {
+                        val bitmap = contentResolver.openInputStream(savedUri)?.use {
+                            BitmapFactory.decodeStream(it)
+                        }
+                        if (bitmap != null) {
+                            classify(bitmap)
+                        } else {
+                            Log.e(TAG, "BitmapFactory.decodeStream returned null for $savedUri")
+                            runOnUiThread { Toast.makeText(baseContext, "Failed to decode image.", Toast.LENGTH_SHORT).show() }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error decoding bitmap or during classification preparation.", e)
+                        runOnUiThread { Toast.makeText(baseContext, "Error processing image.", Toast.LENGTH_SHORT).show() }
+                    }
+                }
+
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                    runOnUiThread {
+                        Toast.makeText(baseContext, "Photo capture failed: ${exc.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            })
+    }
+
+    private fun classify(bitmap: Bitmap) {
+        val currentModule = module
+        val currentLabels = labels
+
+        if (currentModule == null) {
+            Log.e(TAG, "Classification cannot proceed: PyTorch module is not initialized.")
+            runOnUiThread { Toast.makeText(this, "Error: Model not loaded. Cannot classify.", Toast.LENGTH_LONG).show() }
+            return
+        }
+        if (currentLabels == null || currentLabels.isEmpty()) {
+            Log.e(TAG, "Classification cannot proceed: Labels are not loaded or empty.")
+            runOnUiThread { Toast.makeText(this, "Error: Labels not loaded. Cannot classify.", Toast.LENGTH_LONG).show() }
+            return
+        }
+
+        try {
+            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true)
+            val inputTensor = TensorImageUtils.bitmapToFloat32Tensor(
+                resizedBitmap,
+                TensorImageUtils.TORCHVISION_NORM_MEAN_RGB,
+                TensorImageUtils.TORCHVISION_NORM_STD_RGB
+            )
+            val outputTensor = currentModule.forward(IValue.from(inputTensor)).toTensor()
+            val scores = outputTensor.dataAsFloatArray
+
+            if (scores.isEmpty()) {
+                Log.e(TAG, "Classification failed: scores array is empty.")
+                runOnUiThread { Toast.makeText(this, "Classification produced no results.", Toast.LENGTH_LONG).show() }
+                return
+            }
+
+            var maxIdx = -1
+            var maxScore = -Float.MAX_VALUE
+            for (i in scores.indices) {
+                if (scores[i] > maxScore) {
+                    maxScore = scores[i]
+                    maxIdx = i
+                }
+            }
+
+            if (maxIdx != -1 && maxIdx < currentLabels.size) {
+                val plantName = currentLabels[maxIdx] // This will be lowercase due to change in loadModelAndLabels
+                Log.i(TAG, "Classification result: $plantName (Score: $maxScore)")
+                runOnUiThread {
+                    showPlantBottomSheet(plantName)
+                }
+            } else {
+                Log.e(TAG, "Classification failed: maxIdx is invalid ($maxIdx) or out of bounds for labels (size ${currentLabels.size}).")
+                runOnUiThread { Toast.makeText(this, "Could not classify plant.", Toast.LENGTH_LONG).show() }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during classification.", e)
+            runOnUiThread { Toast.makeText(this, "Error during plant classification.", Toast.LENGTH_LONG).show() }
+        }
+    }
+
+    private fun showPlantBottomSheet(name: String) { // name is expected to be lowercase here
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
+        dialog.setContentView(view)
+
+        val nameText = view.findViewById<TextView>(R.id.plantName)
+        val infoText = view.findViewById<TextView>(R.id.plantInfo)
+        val bottomSheetRootLayout = view.findViewById<LinearLayout>(R.id.bottomSheetRootLayout)
+
+        nameText.text = name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        infoText.text = plantDescriptions[name] ?: "No information available for ${name.replaceFirstChar { it.titlecase(Locale.getDefault()) }}."
+
+        // --- START: Configure bottom sheet height and behavior ---
+        val bottomSheetInternal = dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+        if (bottomSheetInternal != null) {
+            val behavior = BottomSheetBehavior.from(bottomSheetInternal)
+
+            val windowMetrics = androidx.window.layout.WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+            val screenHeight = windowMetrics.bounds.height()
+            val desiredHeight = screenHeight / 3
+
+            // 1. Set the minimum height of your content layout
+            bottomSheetRootLayout.minimumHeight = desiredHeight
+
+            // 2. Set the peekHeight of the BottomSheetBehavior
+            behavior.peekHeight = desiredHeight
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED // Ensure it starts at peek height
+
+            // Optional: Prevent full expansion if you ONLY want it to be 1/3 height and scrollable within that
+            // behavior.isFitToContents = false // If true (default), it can expand beyond peekHeight to fit content
+            // If false, it respects peekHeight more strictly for STATE_COLLAPSED
+            // and will only expand to full screen if dragged.
+            // For your case, you likely want isFitToContents = true (default)
+            // so it can be dragged open further.
+
+            // Optional: If you want to prevent it from being fully expanded by dragging
+            // behavior.isHideable = false
+            // behavior.skipCollapsed = false // Ensures it uses peekHeight
+        }
+        // --- END: Configure bottom sheet height and behavior ---
+
+        dialog.show()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+        Log.d(TAG, "Camera executor shutdown.")
     }
 }
+

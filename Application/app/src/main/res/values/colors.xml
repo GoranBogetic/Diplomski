@@ -1,11 +1,22 @@
 <resources>
-    <color name="primary">#4CAF50</color> <!-- Light Green -->
-    <color name="primaryVariant">#388E3C</color> <!-- Darker Green -->
-    <color name="secondary">#A5D6A7</color> <!-- Accent Green -->
-    <color name="background">#FFFFFF</color> <!-- White -->
-    <color name="surface">#F1F8E9</color> <!-- Light planty background -->
-    <color name="onPrimary">#FFFFFF</color> <!-- White text on green -->
-    <color name="onSecondary">#000000</color> <!-- Black text on secondary -->
-    <color name="onBackground">#000000</color>
-    <color name="onSurface">#000000</color>
+    <!-- Brand Greens -->
+    <color name="brand_green_primary">#4CAF50</color>         <!-- Was: primary (Light Green) -->
+    <color name="brand_green_dark">#388E3C</color>          <!-- Was: primaryVariant (Darker Green) -->
+    <color name="brand_green_accent">#A5D6A7</color>        <!-- Was: secondary (Accent Green) -->
+
+    <!-- Neutral & Background Colors -->
+    <color name="neutral_white">#FFFFFF</color>             <!-- Was: background, onPrimary (White) -->
+    <color name="neutral_black">#000000</color>             <!-- Was: onSecondary, onBackground, onSurface (Black) -->
+    <color name="background_app">#FFFFFF</color>           <!-- Explicit name for main app background -->
+    <color name="background_surface_light_green">#F1F8E9</color> <!-- Was: surface (Light planty background) -->
+
+    <!-- Text Colors (can be aliases of neutrals or specific if needed) -->
+    <color name="text_on_brand_primary">#FFFFFF</color>   <!-- Was: onPrimary (White text on green) -->
+    <color name="text_on_brand_accent">#000000</color>    <!-- Was: onSecondary (Black text on secondary) -->
+    <color name="text_on_background">#000000</color>       <!-- Was: onBackground -->
+    <color name="text_on_surface">#000000</color>
+
+    <color name="icon_color_on_green_button">#FFFFFF</color>
+    <color name="shutter_ring_middle_white">#FFFFFF</color>
+    <color name="shutter_ring_outer_dark_green">#388E3C</color>
 </resources>
