@@ -15,26 +15,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/captureButton"
-        style="@style/Widget.MaterialComponents.Button.Icon"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:insetLeft="0dp"
-        android:insetRight="0dp"
-        app:icon="@drawable/ic_search_magnifying_glass"
-        app:iconTint="@color/icon_color_on_green_button"
-        app:iconGravity="textStart"
-        app:iconPadding="0dp"
-        app:iconSize="24dp"
-        android:background="@drawable/shutter_button_background"
-        android:contentDescription="Capture Plant"
+    <View
+        android:id="@+id/scanning_line_view"
+        android:layout_width="0dp"
+        android:layout_height="6dp"
+        android:background="@drawable/scanning_bar"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <FrameLayout
+        android:id="@+id/captureButtonContainer"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginBottom="125dp"
+        android:background="@drawable/shutter_button_background"
+        android:elevation="8dp"
+        android:stateListAnimator="@animator/shutter_button_scale"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="125dp"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageView
+            android:id="@+id/captureButtonIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_search_magnifying_glass"
+            app:tint="@color/icon_color_on_green_button"
+            android:contentDescription="@string/capture_button_desc" />
+
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

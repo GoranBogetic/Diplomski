@@ -19,4 +19,5 @@
     <color name="icon_color_on_green_button">#FFFFFF</color>
     <color name="shutter_ring_middle_white">#FFFFFF</color>
     <color name="shutter_ring_outer_dark_green">#388E3C</color>
+    <color name="shutter_button_background">#4CAF50</color>
 </resources>
