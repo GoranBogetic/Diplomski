@@ -1,42 +1,40 @@
 package com.example.plantfinder
 
 import android.Manifest
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.TextView // Import TextView
+import android.view.animation.LinearInterpolator
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.statusBars
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog // Import BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.pytorch.IValue
 import org.pytorch.Module
 import org.pytorch.torchvision.TensorImageUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.Locale // Import Locale for string manipulation
+import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.compose.ui.unit.height
 
 class MainActivity : AppCompatActivity() {
 
@@ -45,13 +43,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private var module: Module? = null
     private var labels: List<String>? = null
+    private lateinit var captureButtonContainer: FrameLayout
+    private lateinit var scanningLineView: View
+    private var scanningAnimator: Animator? = null
+    private var hasCompletedCycle = false
 
     private val REQUEST_CODE_PERMISSIONS = 10
     private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
     companion object {
         private const val TAG = "PlantFinderMain"
-        private const val MODEL_ASSET_NAME = "plant_classifier_efficientnetb0.pt" // VERIFY THIS EXTENSION
+        private const val MODEL_ASSET_NAME = "plant_classifier_efficientnetb0.pt"
         private const val LABELS_ASSET_NAME = "labels.txt"
     }
 
@@ -89,29 +91,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            window.insetsController?.let {
-//                // Use the android.view.WindowInsets.Type constants directly
-//                it.hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
-//                it.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-//            }
-//        } else {
-//            @Suppress("DEPRECATION")
-//            window.decorView.systemUiVisibility = (
-//                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-//                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                            or View.SYSTEM_UI_FLAG_FULLSCREEN
-//                    )
-//        }
-
         setContentView(R.layout.activity_main)
 
         previewView = findViewById(R.id.previewView)
-        val captureButton: Button = findViewById(R.id.captureButton)
+        captureButtonContainer = findViewById(R.id.captureButtonContainer)
+        scanningLineView = findViewById(R.id.scanning_line_view)
+        scanningLineView.visibility = View.GONE
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -121,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
         loadModelAndLabels()
 
-        captureButton.setOnClickListener { takePhoto() }
+        captureButtonContainer.setOnClickListener { takePhoto() }
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
@@ -137,7 +122,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             assets.open(LABELS_ASSET_NAME).bufferedReader().use {
-                labels = it.readLines().map { label -> label.lowercase(Locale.getDefault()) } // Convert labels to lowercase
+                labels = it.readLines().map { label -> label.lowercase(Locale.getDefault()) }
             }
             Log.i(TAG, "Labels ('$LABELS_ASSET_NAME') loaded successfully and converted to lowercase.")
 
@@ -250,6 +235,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             })
+        startScanningAnimation()
     }
 
     private fun classify(bitmap: Bitmap) {
@@ -293,10 +279,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             if (maxIdx != -1 && maxIdx < currentLabels.size) {
-                val plantName = currentLabels[maxIdx] // This will be lowercase due to change in loadModelAndLabels
+                val plantName = currentLabels[maxIdx]
                 Log.i(TAG, "Classification result: $plantName (Score: $maxScore)")
                 runOnUiThread {
-                    showPlantBottomSheet(plantName)
+                    stopScanningAnimation {showPlantBottomSheet(plantName)}
+
                 }
             } else {
                 Log.e(TAG, "Classification failed: maxIdx is invalid ($maxIdx) or out of bounds for labels (size ${currentLabels.size}).")
@@ -308,7 +295,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showPlantBottomSheet(name: String) { // name is expected to be lowercase here
+    private fun showPlantBottomSheet(name: String) {
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
         dialog.setContentView(view)
@@ -329,28 +316,61 @@ class MainActivity : AppCompatActivity() {
             val screenHeight = windowMetrics.bounds.height()
             val desiredHeight = screenHeight / 3
 
-            // 1. Set the minimum height of your content layout
             bottomSheetRootLayout.minimumHeight = desiredHeight
 
-            // 2. Set the peekHeight of the BottomSheetBehavior
             behavior.peekHeight = desiredHeight
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED // Ensure it starts at peek height
-
-            // Optional: Prevent full expansion if you ONLY want it to be 1/3 height and scrollable within that
-            // behavior.isFitToContents = false // If true (default), it can expand beyond peekHeight to fit content
-            // If false, it respects peekHeight more strictly for STATE_COLLAPSED
-            // and will only expand to full screen if dragged.
-            // For your case, you likely want isFitToContents = true (default)
-            // so it can be dragged open further.
-
-            // Optional: If you want to prevent it from being fully expanded by dragging
-            // behavior.isHideable = false
-            // behavior.skipCollapsed = false // Ensures it uses peekHeight
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
-        // --- END: Configure bottom sheet height and behavior ---
-
         dialog.show()
     }
+
+    private fun startScanningAnimation() {
+        scanningLineView.visibility = View.VISIBLE
+
+        val parentHeight = previewView.height.toFloat()
+        val endY = parentHeight - scanningLineView.height
+
+        val scanning = ObjectAnimator.ofFloat(scanningLineView, "translationY", 0f, endY).apply {
+            duration = 4000
+            interpolator = LinearInterpolator()
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator) {
+                    hasCompletedCycle = true
+                }
+                override fun onAnimationStart(animation: Animator) {}
+                override fun onAnimationEnd(animation: Animator) {}
+                override fun onAnimationCancel(animation: Animator) {}
+            })
+        }
+
+        scanningAnimator = AnimatorSet().apply {
+            play(scanning)
+            start()
+        }
+    }
+
+
+
+    private fun stopScanningAnimation(onFinished: () -> Unit) {
+        if (!hasCompletedCycle) {
+            scanningLineView.postDelayed({
+                stopScanningAnimation(onFinished)
+            }, 100)
+            return
+        }
+
+        scanningAnimator?.cancel()
+        scanningAnimator = null
+        scanningLineView.visibility = View.GONE
+        hasCompletedCycle = false
+        onFinished()
+    }
+
+
+
 
     override fun onDestroy() {
         super.onDestroy()
