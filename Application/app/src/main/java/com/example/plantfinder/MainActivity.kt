@@ -6,10 +6,12 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -34,6 +36,8 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 
 class MainActivity : AppCompatActivity() {
@@ -47,9 +51,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var scanningLineView: View
     private var scanningAnimator: Animator? = null
     private var hasCompletedCycle = false
-
+    private lateinit var galleryButton: ImageButton
+    private lateinit var imageView: ImageView
     private val REQUEST_CODE_PERMISSIONS = 10
-    private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+    private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES)
+    } else {
+        arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    private val REQUEST_CODE_GALLERY = 101
+    private val GALLERY_PERMISSION =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            Manifest.permission.READ_MEDIA_IMAGES
+        else
+            Manifest.permission.READ_EXTERNAL_STORAGE
 
     companion object {
         private const val TAG = "PlantFinderMain"
@@ -97,6 +113,8 @@ class MainActivity : AppCompatActivity() {
         captureButtonContainer = findViewById(R.id.captureButtonContainer)
         scanningLineView = findViewById(R.id.scanning_line_view)
         scanningLineView.visibility = View.GONE
+        galleryButton = findViewById(R.id.galleryButton)
+        imageView = findViewById(R.id.imageView)
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -105,6 +123,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadModelAndLabels()
+
+        galleryButton.setOnClickListener {
+            val permissionStatus = ContextCompat.checkSelfPermission(this, GALLERY_PERMISSION)
+            Log.d(TAG, "Gallery permission status: $permissionStatus")
+            if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+                openGallery()
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(GALLERY_PERMISSION), REQUEST_CODE_GALLERY)
+            }
+        }
 
         captureButtonContainer.setOnClickListener { takePhoto() }
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -165,7 +193,12 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
@@ -173,8 +206,17 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
             }
+        } else if (requestCode == REQUEST_CODE_GALLERY) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Gallery permission granted")
+                openGallery()
+            } else {
+                Log.d(TAG, "Gallery permission denied")
+                Toast.makeText(this, "Gallery permission denied.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -217,6 +259,9 @@ class MainActivity : AppCompatActivity() {
                             BitmapFactory.decodeStream(it)
                         }
                         if (bitmap != null) {
+                            runOnUiThread {
+                                startScanningAnimation()
+                            }
                             classify(bitmap)
                         } else {
                             Log.e(TAG, "BitmapFactory.decodeStream returned null for $savedUri")
@@ -235,7 +280,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             })
-        startScanningAnimation()
     }
 
     private fun classify(bitmap: Bitmap) {
@@ -254,7 +298,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         try {
-            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true)
+            val bitmapToProcess: Bitmap
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && bitmap.config == Bitmap.Config.HARDWARE) {
+                Log.d(TAG, "Input bitmap is HARDWARE, converting to software ARGB_8888.")
+                bitmapToProcess = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+
+            } else {
+                Log.d(TAG, "Input bitmap is already software or on an older API level.")
+                bitmapToProcess = bitmap
+            }
+
+            val resizedBitmap = Bitmap.createScaledBitmap(bitmapToProcess, 224, 224, true)
             val inputTensor = TensorImageUtils.bitmapToFloat32Tensor(
                 resizedBitmap,
                 TensorImageUtils.TORCHVISION_NORM_MEAN_RGB,
@@ -282,8 +336,7 @@ class MainActivity : AppCompatActivity() {
                 val plantName = currentLabels[maxIdx]
                 Log.i(TAG, "Classification result: $plantName (Score: $maxScore)")
                 runOnUiThread {
-                    stopScanningAnimation {showPlantBottomSheet(plantName)}
-
+                    stopScanningAnimation { showPlantBottomSheet(plantName) }
                 }
             } else {
                 Log.e(TAG, "Classification failed: maxIdx is invalid ($maxIdx) or out of bounds for labels (size ${currentLabels.size}).")
@@ -291,6 +344,10 @@ class MainActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error during classification.", e)
+            // Check if the exception is the specific IllegalStateException for more targeted logging
+            if (e is IllegalStateException && e.message?.contains("Config#HARDWARE") == true) {
+                Log.e(TAG, "Still encountered hardware bitmap issue despite conversion attempt. Original bitmap config: ${bitmap.config}", e)
+            }
             runOnUiThread { Toast.makeText(this, "Error during plant classification.", Toast.LENGTH_LONG).show() }
         }
     }
@@ -307,20 +364,24 @@ class MainActivity : AppCompatActivity() {
         nameText.text = name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         infoText.text = plantDescriptions[name] ?: "No information available for ${name.replaceFirstChar { it.titlecase(Locale.getDefault()) }}."
 
-        // --- START: Configure bottom sheet height and behavior ---
         val bottomSheetInternal = dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
         if (bottomSheetInternal != null) {
             val behavior = BottomSheetBehavior.from(bottomSheetInternal)
-
             val windowMetrics = androidx.window.layout.WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
             val screenHeight = windowMetrics.bounds.height()
             val desiredHeight = screenHeight / 3
-
             bottomSheetRootLayout.minimumHeight = desiredHeight
-
             behavior.peekHeight = desiredHeight
             behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
+
+        // Add dismissal listener to restore camera preview and hide imageView
+        dialog.setOnDismissListener {
+            imageView.setImageDrawable(null)
+            imageView.visibility = View.GONE
+            previewView.visibility = View.VISIBLE
+        }
+
         dialog.show()
     }
 
@@ -352,8 +413,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun stopScanningAnimation(onFinished: () -> Unit) {
         if (!hasCompletedCycle) {
             scanningLineView.postDelayed({
@@ -369,8 +428,43 @@ class MainActivity : AppCompatActivity() {
         onFinished()
     }
 
+    private fun openGallery() {
+        Log.d(TAG, "Opening gallery picker")
+        val intent = Intent(Intent.ACTION_PICK).apply {
+            type = "image/*"
+        }
+        startActivityForResult(intent, REQUEST_CODE_GALLERY)
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
+        if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK) {
+            val uri: Uri? = data?.data
+            if (uri != null) {
+                try {
+                    Log.d(TAG, "Image selected from gallery: $uri")
+                    val bitmap = contentResolver.openInputStream(uri)?.use {
+                        BitmapFactory.decodeStream(it)
+                    }
+                    if (bitmap != null) {
+                        // Show the picked image in imageView and hide camera preview
+                        runOnUiThread {
+                            imageView.setImageBitmap(bitmap)
+                            imageView.visibility = View.VISIBLE
+                            previewView.visibility = View.GONE
+                        }
+                        startScanningAnimation()
+                        classify(bitmap)
+                    } else {
+                        Toast.makeText(this, "Unable to decode image.", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error loading image from gallery", e)
+                }
+            }
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()

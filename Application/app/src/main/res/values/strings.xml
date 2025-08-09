@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Plant Finder</string>
     <string name="capture_button_desc">Capture Plant</string>
+    <string name="gallery_button_desc">Open Gallery</string>
 </resources>
