@@ -331,7 +331,7 @@ class MainActivity : AppCompatActivity() {
         val endY = parentHeight - scanningLineView.height
 
         val scanning = ObjectAnimator.ofFloat(scanningLineView, "translationY", 0f, endY).apply {
-            duration = 4000
+            duration = 2000
             interpolator = LinearInterpolator()
             repeatMode = ValueAnimator.REVERSE
             repeatCount = ValueAnimator.INFINITE
