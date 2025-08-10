@@ -21,7 +21,7 @@ os.makedirs(MODEL_WEIGHTS_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(ANDROID_MODEL_PATH), exist_ok=True)
 
 BATCH_SIZE = 64
-NUM_OF_EPOCHS = 1
+NUM_OF_EPOCHS = 30
 NUM_OF_WORKERS = 8
 LEARNING_RATE = 1e-4
 
