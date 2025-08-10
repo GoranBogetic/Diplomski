@@ -4,3 +4,12 @@ Database/train/
 Database/val/
 LearningAlgorithm/__pycache__/
 TrainingFeedback/
+
+# Android Studio
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/shelf/
+.idea/dictionaries
+.idea/httpRequests
+.idea/caches
+.idea/libraries
