@@ -3,6 +3,7 @@ Database/test/
 Database/train/
 Database/val/
 LearningAlgorithm/__pycache__/
+Utility/__pycache__/
 TrainingFeedback/
 
 # Android Studio
