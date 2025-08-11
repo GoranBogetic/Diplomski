@@ -1,19 +1,28 @@
 import os
 from SpeciesList import speciesList
 
+# Base directories relative to the script location
+BASE_DIR = os.path.dirname(__file__)
+DATABASE_DIR = os.path.join(BASE_DIR, '../Database')
+
+# Train and validation dataset directories
 databaseDirectories = [
-    r"C:\Users\goran\Desktop\Diplomski\NewDatabase2\train",
-    r"C:\Users\goran\Desktop\Diplomski\NewDatabase2\val"
+    os.path.join(DATABASE_DIR, 'train'),
+    os.path.join(DATABASE_DIR, 'val')
 ]
 
-for base_dir in databaseDirectories:
-    for species_name, _ in speciesList:  # ignore the number part
-        folder_path = os.path.join(base_dir, species_name)
-        os.makedirs(folder_path, exist_ok=True)
-    
-    species_file_path = os.path.join(base_dir, "classname.txt")
-    with open(species_file_path, "w") as f:
-        for species_name, _ in speciesList:
-            f.write(species_name + "\n")
+for baseDir in databaseDirectories:
+    os.makedirs(baseDir, exist_ok=True)
 
-    print(f"Created folders and classname.txt in {base_dir}")
+    # Create species folders
+    for speciesName, _ in speciesList:
+        folderPath = os.path.join(baseDir, speciesName)
+        os.makedirs(folderPath, exist_ok=True)
+    
+    # Create classname.txt
+    speciesFilePath = os.path.join(baseDir, "classname.txt")
+    with open(speciesFilePath, "w") as f:
+        for speciesName, _ in speciesList:
+            f.write(speciesName + "\n")
+
+    print(f"Created folders and classname.txt in {baseDir}")
