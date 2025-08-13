@@ -17,7 +17,6 @@ speciesList = [
     ("ChestnutTree", 861033),
     ("Coconut", 48865),
     ("CommonFigTree", 60218),
-    ("CommonMyrtle", 585523),
     ("CommonPoppy", 54404),
     ("CommonSage", 51738),
     ("Corn", 48448),

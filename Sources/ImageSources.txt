@@ -8807,33 +8807,6 @@ https://inaturalist-open-data.s3.amazonaws.com/photos/489855588/original.jpeg
 https://inaturalist-open-data.s3.amazonaws.com/photos/489855621/original.jpeg
 https://inaturalist-open-data.s3.amazonaws.com/photos/489806706/original.jpeg
 
-=== CommonMyrtle ===
-https://inaturalist-open-data.s3.amazonaws.com/photos/302041202/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/302041227/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/302041248/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/302041298/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/216181932/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/216181944/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/216202788/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/192182845/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/192182794/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/192182788/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/192182824/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/192182701/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/154684802/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/154684825/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/154684828/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/154684834/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/154684854/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/154684861/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/149594523/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/149594535/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/105154123/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/105154139/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/105154158/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/105154185/original.jpeg
-https://inaturalist-open-data.s3.amazonaws.com/photos/105154193/original.jpeg
-
 === CommonPoppy ===
 https://inaturalist-open-data.s3.amazonaws.com/photos/550540580/original.jpg
 https://inaturalist-open-data.s3.amazonaws.com/photos/550415687/original.jpg
