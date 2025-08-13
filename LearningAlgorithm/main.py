@@ -4,9 +4,9 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
 
-from TrainingUtility import model_training
-from ModelConverterUtility import initialize_model, convert_model_to_torchscript
-from DataUtility import get_data_loaders
+from TrainingUtility import modelTraining
+from ModelConverterUtility import initializeModel, convertModelToTorchscript
+from DataUtility import getDataLoaders
 
 BASE_DIR = os.path.dirname(__file__)
 DATABASE_DIR = os.path.join(BASE_DIR, '../Database')
@@ -28,36 +28,36 @@ LEARNING_RATE = 1e-4
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def main():
-    train_loader, val_loader, class_names = get_data_loaders(DATABASE_DIR, batch_size=BATCH_SIZE, num_workers=NUM_OF_WORKERS)
-    num_classes = len(class_names)
-    print(f"Detected {num_classes} classes: {class_names}")
+    trainingLoader, validationLoader, classNames = getDataLoaders(DATABASE_DIR, batchSize=BATCH_SIZE, numOfWorkers=NUM_OF_WORKERS)
+    numClasses = len(classNames)
+    print(f"Detected {numClasses} classes: {classNames}")
 
-    model = initialize_model(num_classes, DEVICE)
+    model = initializeModel(numClasses, DEVICE)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-    dataloaders = {'train': train_loader, 'val': val_loader}
+    dataloaders = {'train': trainingLoader, 'val': validationLoader}
 
-    model, train_loss, val_loss, val_accuracy_history = model_training(model, dataloaders, criterion, optimizer, DEVICE, num_of_epochs=NUM_OF_EPOCHS, patience=5)
+    model, trainingLoss, validationLoss, validationAccuracyHistory = modelTraining(model, dataloaders, criterion, optimizer, DEVICE, numOfEpochs=NUM_OF_EPOCHS, patience=5)
 
     torch.save(model.state_dict(), MODEL_WEIGHTS_PATH)
     print("Model weights saved!")
 
     plt.figure(figsize=(10, 6))
-    plt.plot(train_loss, label='Train Loss')
-    plt.plot(val_loss, label='Val Loss')
-    plt.plot(val_accuracy_history, label='Val Accuracy')
+    plt.plot(trainingLoss, label='Training Loss')
+    plt.plot(validationLoss, label='Validation Loss')
+    plt.plot(validationAccuracyHistory, label='Val Accuracy')
     plt.legend()
     plt.title('Loss and Validation Accuracy over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Value')
-    plt.savefig(os.path.join(TRAINING_FEEDBACK_DIR, 'training_plot.png'))
+    plt.savefig(os.path.join(TRAINING_FEEDBACK_DIR, 'TrainingPlot.png'))
 
-    with open(os.path.join(TRAINING_FEEDBACK_DIR, 'val_accuracy_per_epoch.txt'), 'w') as f:
-        for i, acc in enumerate(val_accuracy_history):
+    with open(os.path.join(TRAINING_FEEDBACK_DIR, 'ValAccuracyperEpoch.txt'), 'w') as f:
+        for i, acc in enumerate(validationAccuracyHistory):
             f.write(f"Epoch {i+1}: {acc:.4f}\n")
 
-    convert_model_to_torchscript(model, ANDROID_MODEL_PATH, DEVICE)
+    convertModelToTorchscript(model, ANDROID_MODEL_PATH, DEVICE)
 
 if __name__ == "__main__":
     main()

@@ -1,13 +1,13 @@
 import torch
 from torchvision import models
 
-def initialize_model(num_classes, device, pretrained=True):
+def initializeModel(num_classes, device, pretrained=True):
     model = models.efficientnet_b0(pretrained=pretrained)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, num_classes)
     model = model.to(device)
     return model
 
-def convert_model_to_torchscript(model, android_model_path, device):
+def convertModelToTorchscript(model, android_model_path, device):
     model.eval()
     example_input = torch.rand(1, 3, 224, 224).to(device)
     traced_script_module = torch.jit.trace(model, example_input)

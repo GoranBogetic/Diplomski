@@ -2,8 +2,8 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import os
 
-def get_data_loaders(database_dir, batch_size=64, num_workers=8):
-    transform_train = transforms.Compose([
+def getDataLoaders(databaseDir, batchSize, numOfWorkers):
+    transformTrainingData = transforms.Compose([
         transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
@@ -17,7 +17,7 @@ def get_data_loaders(database_dir, batch_size=64, num_workers=8):
         transforms.RandomErasing(p=0.3, scale=(0.02, 0.15))
     ])
 
-    transform_val = transforms.Compose([
+    transformValidationData = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
@@ -25,10 +25,10 @@ def get_data_loaders(database_dir, batch_size=64, num_workers=8):
                              [0.229, 0.224, 0.225])
     ])
 
-    train_dataset = datasets.ImageFolder(os.path.join(database_dir, 'train'), transform=transform_train)
-    val_dataset = datasets.ImageFolder(os.path.join(database_dir, 'val'), transform=transform_val)
+    trainingDataset = datasets.ImageFolder(os.path.join(databaseDir, 'train'), transform=transformTrainingData)
+    validationDataset = datasets.ImageFolder(os.path.join(databaseDir, 'val'), transform=transformValidationData)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    trainingLoader = DataLoader(trainingDataset, batch_size=batchSize, shuffle=True, num_workers=numOfWorkers)
+    validationLoader = DataLoader(validationDataset, batch_size=batchSize, shuffle=False, num_workers=numOfWorkers)
 
-    return train_loader, val_loader, train_dataset.classes
+    return trainingLoader, validationLoader, trainingDataset.classes
