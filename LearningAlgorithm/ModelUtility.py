@@ -2,9 +2,10 @@ import os
 import shutil
 import torch
 from torchvision import models
+from torchvision.models.efficientnet import EfficientNet_B0_Weights
 
 def initializeModel(numClasses, device, pretrained=True):
-    model = models.efficientnet_b0(pretrained=pretrained)
+    model = models.efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, numClasses)
     model = model.to(device)
     return model

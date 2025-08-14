@@ -14,20 +14,22 @@ TRAINING_FEEDBACK_DIR = os.path.join(BASE_DIR, '../TrainingFeedback')
 MODELS_DIR = os.path.join(BASE_DIR, '../Models')
 MODEL_WEIGHTS_DIR = os.path.join(MODELS_DIR, 'ModelWeights')
 MODEL_WEIGHTS_PATH = os.path.join(MODEL_WEIGHTS_DIR, 'plant_classifier_efficientnetb0.pth')
-ANDROID_MODEL_PATH = os.path.join(MODELS_DIR, 'AndroidModel')
+ANDROID_MODEL_DIR = os.path.join(MODELS_DIR, 'AndroidModel')
+ANDROID_MODEL_PATH = os.path.join(ANDROID_MODEL_DIR, 'plant_classifier_efficientnetb0.pt')
 ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb0.pt')
 PLANT_CALLSSES_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/labels.txt')
 
 os.makedirs(TRAINING_FEEDBACK_DIR, exist_ok=True)
 os.makedirs(MODEL_WEIGHTS_DIR, exist_ok=True)
-os.makedirs(ANDROID_MODEL_PATH, exist_ok=True)
+os.makedirs(ANDROID_MODEL_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(ANDROID_MODEL_APP_PATH), exist_ok=True)
 os.makedirs(os.path.dirname(PLANT_CALLSSES_APP_PATH), exist_ok=True)
 
-BATCH_SIZE = 64
-NUM_OF_EPOCHS = 30
+BATCH_SIZE = 16
+NUM_OF_EPOCHS = 50
 NUM_OF_WORKERS = 8
 LEARNING_RATE = 1e-4
+PATIENCE = 5
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -38,11 +40,11 @@ def main():
 
     model = initializeModel(numClasses, DEVICE)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
 
     dataloaders = {'train': trainingLoader, 'val': validationLoader}
 
-    model, trainingLoss, validationLoss, validationAccuracyHistory = modelTraining(model, dataloaders, criterion, optimizer, DEVICE, numOfEpochs=NUM_OF_EPOCHS, patience=5)
+    model, trainingLoss, validationLoss, validationAccuracyHistory = modelTraining(model, dataloaders, criterion, optimizer, DEVICE, numOfEpochs=NUM_OF_EPOCHS, patience=PATIENCE)
 
     torch.save(model.state_dict(), MODEL_WEIGHTS_PATH)
     print("Model weights saved!")
