@@ -828,7 +828,6 @@ https://inaturalist-open-data.s3.amazonaws.com/photos/533821047/original.jpg
 https://inaturalist-open-data.s3.amazonaws.com/photos/533821067/original.jpg
 https://inaturalist-open-data.s3.amazonaws.com/photos/533685756/original.jpg
 https://inaturalist-open-data.s3.amazonaws.com/photos/533683630/original.jpg
-https://inaturalist-open-data.s3.amazonaws.com/photos/533683324/original.jpg
 https://inaturalist-open-data.s3.amazonaws.com/photos/533562353/original.jpg
 https://inaturalist-open-data.s3.amazonaws.com/photos/533562428/original.jpg
 https://inaturalist-open-data.s3.amazonaws.com/photos/533478551/original.jpg
