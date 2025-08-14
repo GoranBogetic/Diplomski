@@ -5,7 +5,7 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 
 from TrainingUtility import modelTraining
-from ModelConverterUtility import initializeModel, convertModelToTorchscript
+from ModelUtility import initializeModel, convertModelToAndroidModel, copyPlantClassesToApplication
 from DataUtility import getDataLoaders
 
 BASE_DIR = os.path.dirname(__file__)
@@ -14,11 +14,15 @@ TRAINING_FEEDBACK_DIR = os.path.join(BASE_DIR, '../TrainingFeedback')
 MODELS_DIR = os.path.join(BASE_DIR, '../Models')
 MODEL_WEIGHTS_DIR = os.path.join(MODELS_DIR, 'ModelWeights')
 MODEL_WEIGHTS_PATH = os.path.join(MODEL_WEIGHTS_DIR, 'plant_classifier_efficientnetb0.pth')
-ANDROID_MODEL_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb0.pt')
+ANDROID_MODEL_PATH = os.path.join(MODELS_DIR, 'AndroidModel')
+ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb0.pt')
+PLANT_CALLSSES_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/labels.txt')
 
 os.makedirs(TRAINING_FEEDBACK_DIR, exist_ok=True)
 os.makedirs(MODEL_WEIGHTS_DIR, exist_ok=True)
-os.makedirs(os.path.dirname(ANDROID_MODEL_PATH), exist_ok=True)
+os.makedirs(ANDROID_MODEL_PATH, exist_ok=True)
+os.makedirs(os.path.dirname(ANDROID_MODEL_APP_PATH), exist_ok=True)
+os.makedirs(os.path.dirname(PLANT_CALLSSES_APP_PATH), exist_ok=True)
 
 BATCH_SIZE = 64
 NUM_OF_EPOCHS = 30
@@ -57,7 +61,8 @@ def main():
         for i, acc in enumerate(validationAccuracyHistory):
             f.write(f"Epoch {i+1}: {acc:.4f}\n")
 
-    convertModelToTorchscript(model, ANDROID_MODEL_PATH, DEVICE)
+    convertModelToAndroidModel(model, ANDROID_MODEL_PATH, ANDROID_MODEL_APP_PATH, DEVICE)
+    copyPlantClassesToApplication(DATABASE_DIR, PLANT_CALLSSES_APP_PATH)
 
 if __name__ == "__main__":
     main()
