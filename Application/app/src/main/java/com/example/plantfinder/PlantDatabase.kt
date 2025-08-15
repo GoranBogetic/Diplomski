@@ -415,6 +415,13 @@ val plantInfo = mapOf(
         description = "A large deciduous tree with broad leaves. Mainly ornamental, not edible.",
         isEdible = false
     ),
+    "oleander" to PlantData(
+        englishName = "Oleander",
+        croatianName = "Oleandar",
+        latinName = "Nerium oleander",
+        description = "An evergreen shrub with long, narrow leaves and clusters of brightly colored flowers, often pink, white, or red. It is drought-tolerant and commonly grown as an ornamental in warm climates, but all parts of the plant are highly toxic if ingested.",
+        isEdible = false
+    ),
     "oregano" to PlantData(
         englishName = "Oregano",
         croatianName = "Origano",

@@ -10,6 +10,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -231,6 +233,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         if (bitmap != null) {
                             runOnUiThread {
+                                showCapturedPhoto(bitmap, photoFile)
                                 startScanningAnimation()
                             }
                             classify(bitmap)
@@ -253,6 +256,31 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
+    private fun showCapturedPhoto(bitmap: Bitmap, photoFile: File? = null) {
+        val rotatedBitmap = if (photoFile != null) {
+            try {
+                val exif = ExifInterface(photoFile.absolutePath)
+                val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                val matrix = Matrix()
+                when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                    ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                    ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                }
+                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to rotate bitmap", e)
+                bitmap
+            }
+        } else {
+            bitmap
+        }
+
+        imageView.setImageBitmap(rotatedBitmap)
+        imageView.visibility = View.VISIBLE
+        previewView.visibility = View.GONE
+    }
+    
     private fun classify(bitmap: Bitmap) {
         val currentModule = module
         val currentLabels = labels
@@ -346,6 +374,11 @@ class MainActivity : AppCompatActivity() {
             latinNameText.text = "latinNameText"
             infoText.text = "No information available for this plant."
             edibleText.text = "edibleText"
+        }
+
+        bottomSheetDialog.setOnDismissListener {
+            imageView.visibility = View.GONE
+            previewView.visibility = View.VISIBLE
         }
 
         bottomSheetDialog.show()
