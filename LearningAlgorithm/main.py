@@ -15,8 +15,8 @@ MODELS_DIR = os.path.join(BASE_DIR, '../Models')
 MODEL_WEIGHTS_DIR = os.path.join(MODELS_DIR, 'ModelWeights')
 MODEL_WEIGHTS_PATH = os.path.join(MODEL_WEIGHTS_DIR, 'plant_classifier_efficientnetb0.pth')
 ANDROID_MODEL_DIR = os.path.join(MODELS_DIR, 'AndroidModel')
-ANDROID_MODEL_PATH = os.path.join(ANDROID_MODEL_DIR, 'plant_classifier_efficientnetb0.pt')
-ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb0.pt')
+ANDROID_MODEL_PATH = os.path.join(ANDROID_MODEL_DIR, 'plant_classifier_efficientnetb0.ptl')
+ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb0.ptl')
 PLANT_CALLSSES_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/labels.txt')
 
 os.makedirs(TRAINING_FEEDBACK_DIR, exist_ok=True)
@@ -26,7 +26,7 @@ os.makedirs(os.path.dirname(ANDROID_MODEL_APP_PATH), exist_ok=True)
 os.makedirs(os.path.dirname(PLANT_CALLSSES_APP_PATH), exist_ok=True)
 
 BATCH_SIZE = 16
-NUM_OF_EPOCHS = 50
+NUM_OF_EPOCHS = 1
 NUM_OF_WORKERS = 8
 LEARNING_RATE = 1e-4
 PATIENCE = 5
@@ -63,7 +63,7 @@ def main():
         for i, acc in enumerate(validationAccuracyHistory):
             f.write(f"Epoch {i+1}: {acc:.4f}\n")
 
-    convertModelToAndroidModel(model, ANDROID_MODEL_PATH, ANDROID_MODEL_APP_PATH, DEVICE)
+    convertModelToAndroidModel(model, MODEL_WEIGHTS_PATH, ANDROID_MODEL_PATH, ANDROID_MODEL_APP_PATH)
     copyPlantClassesToApplication(DATABASE_DIR, PLANT_CALLSSES_APP_PATH)
 
 if __name__ == "__main__":

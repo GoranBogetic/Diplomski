@@ -4,22 +4,60 @@ import torch
 from torchvision import models
 from torchvision.models.efficientnet import EfficientNet_B0_Weights
 
+BASE_DIR = os.path.dirname(__file__)
+DATABASE_DIR = os.path.join(BASE_DIR, '../Database')
+TRAINING_FEEDBACK_DIR = os.path.join(BASE_DIR, '../TrainingFeedback')
+MODELS_DIR = os.path.join(BASE_DIR, '../Models')
+MODEL_WEIGHTS_DIR = os.path.join(MODELS_DIR, 'ModelWeights')
+MODEL_WEIGHTS_PATH = os.path.join(MODEL_WEIGHTS_DIR, 'plant_classifier_efficientnetb0.pth')
+ANDROID_MODEL_DIR = os.path.join(MODELS_DIR, 'AndroidModel')
+ANDROID_MODEL_PATH = os.path.join(ANDROID_MODEL_DIR, 'plant_classifier_efficientnetb0.ptl')
+ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb0.ptl')
+PLANT_CALLSSES_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/labels.txt')
+
 def initializeModel(numClasses, device):
     model = models.efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, numClasses)
     model = model.to(device)
     return model
 
-def convertModelToAndroidModel(model, androidModelPath, androidModelAppPath, device):
-    model.eval()
-    exampleInput = torch.rand(1, 3, 224, 224).to(device)
-    androidModel = torch.jit.trace(model, exampleInput)
-    
-    androidModel.save(androidModelPath)
-    print(f"Android model model saved as {androidModelPath}")
-    
-    androidModel.save(androidModelAppPath)
-    print(f"Android model model also saved as {androidModelAppPath}")
+def convertModelToAndroidModel(model, modelWeightsPath, androidModelPath, androidModelAppPath):
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(androidModelPath), exist_ok=True)
+    if androidModelAppPath:
+        os.makedirs(os.path.dirname(androidModelAppPath), exist_ok=True)
+
+    # Determine device for loading weights
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device} to load weights.")
+
+    # Load weights
+    try:
+        state_dict = torch.load(modelWeightsPath, map_location=device)
+        # Remove 'module.' prefix if present
+        if any(k.startswith('module.') for k in state_dict.keys()):
+            state_dict = {k.replace('module.', ''): v for k, v in state_dict.items()}
+        model.load_state_dict(state_dict)
+        print(f"Loaded weights from {modelWeightsPath}")
+    except Exception as e:
+        print(f"Error loading weights: {e}")
+        return
+
+    # Trace model for TorchScript
+    try:
+        model.eval()
+        model_cpu = model.to('cpu')
+        example_input = torch.rand(1, 3, 224, 224)
+        traced_model = torch.jit.trace(model_cpu, example_input)
+
+        traced_model.save(androidModelPath)
+        print(f"Android model saved to {androidModelPath}")
+
+        if androidModelAppPath:
+            traced_model.save(androidModelAppPath)
+            print(f"Android model also saved to {androidModelAppPath}")
+    except Exception as e:
+        print(f"Error tracing/saving model: {e}")
 
 
 def copyPlantClassesToApplication(databaseDir, plantClassesFilePath):
