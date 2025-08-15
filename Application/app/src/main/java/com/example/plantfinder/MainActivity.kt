@@ -40,6 +40,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 
+import com.example.plantfinder.plantInfo
+import com.example.plantfinder.PlantData
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
@@ -69,41 +72,9 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "PlantFinderMain"
-        private const val MODEL_ASSET_NAME = "plant_classifier_efficientnetb0.pt"
+        private const val MODEL_ASSET_NAME = "plant_classifier_efficientnetb0.ptl"
         private const val LABELS_ASSET_NAME = "labels.txt"
     }
-
-    private val plantDescriptions: Map<String, String> = mapOf(
-        "aloevera" to "Aloe Vera is known for its healing and soothing properties, often used for skin treatment.",
-        "banana" to "Banana is a tropical fruit rich in potassium and a staple in many tropical regions.",
-        "bilimbi" to "Bilimbi is a tangy tropical fruit often used in traditional cooking and pickling.",
-        "cantaloupe" to "Cantaloupe is a sweet orange-fleshed melon, high in water content and refreshing.",
-        "cassava" to "Cassava is a starchy root vegetable, a major source of carbohydrates in many tropical countries.",
-        "corn" to "Corn, or maize, is a cereal grain with edible kernels and used in a variety of foods.",
-        "cucumber" to "Cucumber is a hydrating vegetable commonly used in salads and skin care.",
-        "curcuma" to "Curcuma, also known as turmeric, is a root used as a spice with anti-inflammatory properties.",
-        "eggplant" to "Eggplant is a purple vegetable often used in cooking and known for its spongy texture.",
-        "galangal" to "Galangal is a root similar to ginger, commonly used in Southeast Asian cooking.",
-        "ginger" to "Ginger is a spicy root used in food and medicine for its anti-inflammatory effects.",
-        "guava" to "Guava is a tropical fruit rich in vitamin C and fiber, with a sweet and tangy flavor.",
-        "kale" to "Kale is a leafy green vegetable packed with nutrients and antioxidants.",
-        "longbeans" to "Long beans are slender green beans used in stir-fries and traditional dishes.",
-        "mango" to "Mango is a sweet tropical fruit loved for its juicy texture and rich flavor.",
-        "melon" to "Melon refers to various sweet, water-rich fruits such as honeydew and cantaloupe.",
-        "orange" to "Orange is a citrus fruit known for its bright color, vitamin C, and refreshing juice.",
-        "paddy" to "Paddy refers to rice before it is husked — a vital food crop around the world.",
-        "papaya" to "Papaya is a tropical fruit with orange flesh, rich in enzymes that aid digestion.",
-        "peperchili" to "Pepper chili is a spicy fruit used to add heat and flavor to dishes.",
-        "pineapple" to "Pineapple is a tropical fruit with sweet-tart flavor and high vitamin C content.",
-        "pomelo" to "Pomelo is the largest citrus fruit, with a thick rind and mild sweet flesh.",
-        "shallot" to "Shallot is a mild onion-like vegetable used to enhance flavor in cooking.",
-        "soybeans" to "Soybeans are protein-rich legumes used to make tofu, soy milk, and many foods.",
-        "spinach" to "Spinach is a leafy green vegetable rich in iron and vitamins, often eaten cooked or raw.",
-        "sweetpotatoes" to "Sweet potatoes are nutritious tubers with a sweet taste and high in fiber and beta-carotene.",
-        "tobacco" to "Tobacco is a plant whose leaves are used for making products like cigarettes and cigars.",
-        "waterapple" to "Water apple is a crisp, juicy fruit also known as rose apple, common in tropical areas.",
-        "watermelon" to "Watermelon is a refreshing fruit made up mostly of water and loved during hot seasons."
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -352,38 +323,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showPlantBottomSheet(name: String) {
-        val dialog = BottomSheetDialog(this)
-        val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
-        dialog.setContentView(view)
+    private fun showPlantBottomSheet(plantKey: String) {
+        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(bottomSheetView)
 
-        val nameText = view.findViewById<TextView>(R.id.plantName)
-        val infoText = view.findViewById<TextView>(R.id.plantInfo)
-        val bottomSheetRootLayout = view.findViewById<LinearLayout>(R.id.bottomSheetRootLayout)
+        val nameText = bottomSheetView.findViewById<TextView>(R.id.plant_name)
+        val latinNameText = bottomSheetView.findViewById<TextView>(R.id.plant_latin_name)
+        val infoText = bottomSheetView.findViewById<TextView>(R.id.plant_info)
+        val edibleText = bottomSheetView.findViewById<TextView>(R.id.plant_edible)
 
-        nameText.text = name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-        infoText.text = plantDescriptions[name] ?: "No information available for ${name.replaceFirstChar { it.titlecase(Locale.getDefault()) }}."
+        val normalizedKey = plantKey.lowercase(Locale.getDefault())
+        val plantData = plantInfo[normalizedKey]
 
-        val bottomSheetInternal = dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
-        if (bottomSheetInternal != null) {
-            val behavior = BottomSheetBehavior.from(bottomSheetInternal)
-            val windowMetrics = androidx.window.layout.WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
-            val screenHeight = windowMetrics.bounds.height()
-            val desiredHeight = screenHeight / 3
-            bottomSheetRootLayout.minimumHeight = desiredHeight
-            behavior.peekHeight = desiredHeight
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        if (plantData != null) {
+            nameText.text = "${plantData.englishName} (${plantData.croatianName})"
+            latinNameText.text = plantData.latinName
+            infoText.text = plantData.description
+            edibleText.text = "Edible: ${if (plantData.isEdible) "Yes" else "No"}"
+        } else {
+            nameText.text = plantKey.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+            latinNameText.text = "latinNameText"
+            infoText.text = "No information available for this plant."
+            edibleText.text = "edibleText"
         }
 
-        // Add dismissal listener to restore camera preview and hide imageView
-        dialog.setOnDismissListener {
-            imageView.setImageDrawable(null)
-            imageView.visibility = View.GONE
-            previewView.visibility = View.VISIBLE
-        }
-
-        dialog.show()
+        bottomSheetDialog.show()
     }
+
 
     private fun startScanningAnimation() {
         scanningLineView.visibility = View.VISIBLE

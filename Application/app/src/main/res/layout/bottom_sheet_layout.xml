@@ -7,28 +7,55 @@
     android:padding="24dp"
     android:background="@android:color/white">
 
+    <!-- Plant Name (English + Croatian) -->
     <TextView
-        android:id="@+id/plantName"
+        android:id="@+id/plant_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Plant Name"
-        android:textSize="24sp"
+        android:text="Plant Name (Croatian)"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
+        android:paddingBottom="4dp" />
+
+    <!-- Latin Name -->
+    <TextView
+        android:id="@+id/plant_latin_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Latin Name"
+        android:textSize="18sp"
+        android:textStyle="italic"
+        android:textColor="@android:color/darker_gray"
         android:paddingBottom="8dp" />
 
+    <!-- Scrollable description -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="4dp">
 
         <TextView
-            android:id="@+id/plantInfo"
+            android:id="@+id/plant_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Information about the plant..."
+            android:text="Description goes here..."
             android:textSize="16sp"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:lineSpacingExtra="2dp" />
     </ScrollView>
+
+    <!-- Edible status -->
+    <TextView
+        android:id="@+id/plant_edible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Edible: Yes/No"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
+
 </LinearLayout>
