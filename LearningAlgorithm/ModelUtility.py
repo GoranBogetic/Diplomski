@@ -4,7 +4,7 @@ import torch
 from torchvision import models
 from torchvision.models.efficientnet import EfficientNet_B0_Weights
 
-def initializeModel(numClasses, device, pretrained=True):
+def initializeModel(numClasses, device):
     model = models.efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, numClasses)
     model = model.to(device)
