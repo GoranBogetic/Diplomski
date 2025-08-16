@@ -30,8 +30,8 @@ def download_image(url, save_path):
         return False
 
 
-def download_species_images(species_name, urls, out_dir, threads):
-    """Download all URLs for a species in parallel."""
+def download_images_for_folder(species_name, urls, out_dir, threads):
+    """Download all URLs into a folder in parallel."""
     os.makedirs(out_dir, exist_ok=True)
     count = 0
 
@@ -46,19 +46,22 @@ def download_species_images(species_name, urls, out_dir, threads):
             future_to_url[future] = url
 
         for future in as_completed(future_to_url):
-            url = future_to_url[future]
             if future.result():
                 count += 1
 
-    print(f"Downloaded {count} images for {species_name}")
+    print(f"Downloaded {count} images for {species_name} in {out_dir}")
     return count
 
 
 # ==== PARSING HELPER ====
 def parse_image_sources(file_path):
-    """Parse ImageSources.txt into a dict: {species_name: [urls]}"""
+    """
+    Parse ImageSources.txt into a dict:
+    {species_name: {"train": [urls], "val": [urls]}}
+    """
     species_dict = {}
     current_species = None
+
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist!")
         return species_dict
@@ -68,24 +71,36 @@ def parse_image_sources(file_path):
             line = line.strip()
             if line.startswith("===") and line.endswith("==="):
                 current_species = line.strip("= ").strip()
-                species_dict[current_species] = []
+                species_dict[current_species] = {"train": [], "val": []}
             elif line and current_species:
-                species_dict[current_species].append(line)
+                if line.startswith("train:"):
+                    species_dict[current_species]["train"].append(line[len("train:"):].strip())
+                elif line.startswith("val:"):
+                    species_dict[current_species]["val"].append(line[len("val:"):].strip())
+                else:
+                    # default to train if no prefix
+                    species_dict[current_species]["train"].append(line)
     return species_dict
 
 
 # ==== MAIN RECONSTRUCTION ====
-def reconstruct_database():
+def reconstruct_database_with_split():
     os.makedirs(TRAIN_DIR, exist_ok=True)
+    os.makedirs(VAL_DIR, exist_ok=True)
+
     species_urls = parse_image_sources(URLS_LOG_PATH)
 
-    for species_name, urls in species_urls.items():
-        print(f"Reconstructing {species_name} with {len(urls)} images...")
-        species_folder = os.path.join(TRAIN_DIR, species_name)
-        download_species_images(species_name, urls, species_folder, THREADS_PER_SPECIES)
+    for species_name, data in species_urls.items():
+        train_urls = data.get("train", [])
+        val_urls = data.get("val", [])
 
-    print("Database reconstruction complete.")
+        print(f"Reconstructing {species_name}: {len(train_urls)} train, {len(val_urls)} val")
+
+        download_images_for_folder(species_name, train_urls, os.path.join(TRAIN_DIR, species_name), THREADS_PER_SPECIES)
+        download_images_for_folder(species_name, val_urls, os.path.join(VAL_DIR, species_name), THREADS_PER_SPECIES)
+
+    print("Database reconstruction with train/val split complete.")
 
 
 if __name__ == "__main__":
-    reconstruct_database()
+    reconstruct_database_with_split()
