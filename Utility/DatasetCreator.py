@@ -1,6 +1,5 @@
 import os
 import requests
-import time
 import random
 import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,21 +15,22 @@ VAL_DIR = os.path.join(DATABASE_DIR, 'val')
 
 LICENSES = ["cc0", "cc-by", "cc-by-sa"]
 PER_PAGE = 200
-MAX_IMAGES_PER_SPECIES = 500
-MAX_PAGES = 10
-VAL_SPLIT = 0.15
-THREADS_PER_SPECIES = 20  # how many images to download in parallel per species
+MAX_IMAGES_PER_SPECIES = 800
+MAX_PAGES = 20
+VAL_SPLIT = 0.125
+THREADS_PER_SPECIES = 200  # how many images to download in parallel per species
 
-# Shared log file for all URLs
 URLS_LOG_PATH = os.path.join(SOURCES_DIR, "ImageSources.txt")
 
 
-def featchFromPage(taxonId, licenses, page, perPage):
+# ==== API HELPERS ====
+def fetch_from_page(taxon_id, licenses, page, per_page):
+    """Fetch one page of observations from iNaturalist API (no quality filter)."""
     url = "https://api.inaturalist.org/v1/observations"
     params = {
-        "taxonId": taxonId,
-        "photoLicense": ",".join(licenses),
-        "perPage": perPage,
+        "taxon_id": taxon_id,
+        "photo_license": ",".join(licenses),
+        "per_page": per_page,
         "page": page
     }
     response = requests.get(url, params=params, timeout=15)
@@ -38,105 +38,148 @@ def featchFromPage(taxonId, licenses, page, perPage):
     return response.json()
 
 
-def downloadImage(url, savePath):
-    """Download an image from a URL and save it."""
+def collect_image_urls(taxon_id, max_images, max_pages, licenses, per_page):
+    """Collect image URLs for a species up to limits."""
+    urls = []
+    for page in range(1, max_pages + 1):
+        if len(urls) >= max_images:
+            break
+        try:
+            data = fetch_from_page(taxon_id, licenses, page, per_page)
+        except Exception as e:
+            print(f"Error fetching page {page} for taxon {taxon_id}: {e}")
+            break
+
+        results = data.get("results", [])
+        if not results:
+            break
+
+        for obs in results:
+            for photo in obs.get("photos", []):
+                if len(urls) >= max_images:
+                    break
+                # use original size instead of square
+                photo_url = photo["url"].replace("square", "original")
+                urls.append(photo_url)
+
+    return urls
+
+
+# ==== DOWNLOAD HELPERS ====
+def download_image(url, save_path):
+    """Download an image from a URL and save it to disk."""
     try:
-        imgData = requests.get(url, timeout=15).content
-        with open(savePath, 'wb') as handler:
-            handler.write(imgData)
+        response = requests.get(url, timeout=15, stream=True)
+        response.raise_for_status()
+        with open(save_path, "wb") as f:
+            for chunk in response.iter_content(8192):
+                if chunk:
+                    f.write(chunk)
         return True
     except Exception as e:
-        print(f"Failed to save {url}: {e}")
+        print(f"Failed to download {url}: {e}")
         return False
 
 
-def processSpecies(species):
-    """Download all images for one species using threads."""
-    speciesName, taxonId = species
-    speciesFolder = os.path.join(TRAIN_DIR, speciesName)
-    os.makedirs(speciesFolder, exist_ok=True)
-
+def download_images_parallel(urls, species_name, out_dir, threads, log_file):
+    """Download multiple images in parallel and log successful URLs."""
+    os.makedirs(out_dir, exist_ok=True)
     count = 0
 
-    with open(URLS_LOG_PATH, 'a') as urlsLog:
-        urlsLog.write(f"=== {speciesName} ===\n")
+    with open(log_file, "a") as log:
+        log.write(f"=== {species_name} ===\n")
 
-        for page in range(1, MAX_PAGES + 1):
-            if count >= MAX_IMAGES_PER_SPECIES:
-                print(f"Reached max images for {speciesName}")
-                break
+        with ThreadPoolExecutor(max_workers=threads) as executor:
+            future_to_url = {}
+            for idx, url in enumerate(urls):
+                file_name = f"{species_name}_{idx}.jpg"
+                file_path = os.path.join(out_dir, file_name)
+                if os.path.exists(file_path):  # skip if already downloaded
+                    continue
+                future = executor.submit(download_image, url, file_path)
+                future_to_url[future] = url
 
-            try:
-                data = featchFromPage(taxonId, LICENSES, page, PER_PAGE)
-            except Exception as e:
-                print(f"Error fetching page {page} for {speciesName}: {e}")
-                break
+            for future in as_completed(future_to_url):
+                url = future_to_url[future]
+                if future.result():
+                    log.write(url + "\n")
+                    count += 1
 
-            results = data.get('results', [])
-            if not results:
-                break
+        log.write("\n")
 
-            downloadTasks = []
-            with ThreadPoolExecutor(max_workers=THREADS_PER_SPECIES) as executor:
-                for obs in results:
-                    for photo in obs.get('photos', []):
-                        if count + len(downloadTasks) >= MAX_IMAGES_PER_SPECIES:
-                            break
-                        photoUrl = photo['url'].replace('square', 'original')
-                        fileName = f"{speciesName}_{count + len(downloadTasks)}.jpg"
-                        filePath = os.path.join(speciesFolder, fileName)
-                        downloadTasks.append(
-                            (executor.submit(downloadImage, photoUrl, filePath), photoUrl)
-                        )
-
-                for future, url in downloadTasks:
-                    if future.result():
-                        urlsLog.write(url + '\n')
-                        count += 1
-
-        urlsLog.write("\n")
-
-    print(f"Finished downloading {count} images for {speciesName}.")
+    return count
 
 
-def splitTrainingAndValidation():
+# ==== SPECIES PROCESSING ====
+def process_species(species, max_images=MAX_IMAGES_PER_SPECIES):
+    """Process one species: collect URLs and download images."""
+    species_name, taxon_id = species
+    print(f"Processing {species_name}...")
+
+    # Stage 1: collect URLs
+    urls = collect_image_urls(
+        taxon_id,
+        max_images,
+        MAX_PAGES,
+        LICENSES,
+        PER_PAGE
+    )
+    print(f"Collected {len(urls)} image URLs for {species_name}")
+
+    # Stage 2: download
+    species_folder = os.path.join(TRAIN_DIR, species_name)
+    count = download_images_parallel(
+        urls, species_name, species_folder, THREADS_PER_SPECIES, URLS_LOG_PATH
+    )
+    print(f"Downloaded {count} images for {species_name}")
+
+
+# ==== DATASET HELPERS ====
+def split_training_and_validation(val_split=VAL_SPLIT):
+    """Split existing training data into train/val sets."""
     print("Starting train/val split...")
-    for speciesName in os.listdir(TRAIN_DIR):
-        speciesFolder = os.path.join(TRAIN_DIR, speciesName)
-        if not os.path.isdir(speciesFolder):
+    for species_name in os.listdir(TRAIN_DIR):
+        species_folder = os.path.join(TRAIN_DIR, species_name)
+        if not os.path.isdir(species_folder):
             continue
 
-        images = [f for f in os.listdir(speciesFolder) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+        images = [f for f in os.listdir(species_folder)
+                  if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
         if not images:
             continue
 
-        numVal = max(1, int(len(images) * VAL_SPLIT))
-        valImages = random.sample(images, numVal)
+        num_val = max(1, int(len(images) * val_split))
+        val_images = random.sample(images, num_val)
 
-        valSpeciesFolder = os.path.join(VAL_DIR, speciesName)
-        os.makedirs(valSpeciesFolder, exist_ok=True)
+        val_species_folder = os.path.join(VAL_DIR, species_name)
+        os.makedirs(val_species_folder, exist_ok=True)
 
-        for imgName in valImages:
-            sourcePath = os.path.join(speciesFolder, imgName)
-            destinationPath = os.path.join(valSpeciesFolder, imgName)
-            shutil.move(sourcePath, destinationPath)
+        for img_name in val_images:
+            src = os.path.join(species_folder, img_name)
+            dst = os.path.join(val_species_folder, img_name)
+            shutil.move(src, dst)
 
-        print(f"Moved {numVal} images from {speciesName} to validation set.")
+        print(f"Moved {num_val} images from {species_name} to validation set.")
+
     print("Train/val split complete.")
 
 
-if __name__ == "__main__":
+# ==== MAIN PIPELINE ====
+def main():
     os.makedirs(TRAIN_DIR, exist_ok=True)
     os.makedirs(VAL_DIR, exist_ok=True)
     os.makedirs(SOURCES_DIR, exist_ok=True)
 
-    # Clear previous log file if exists
     if os.path.exists(URLS_LOG_PATH):
         os.remove(URLS_LOG_PATH)
 
     for species in speciesList:
-        processSpecies(species)  # sequential per species, but threaded inside
+        process_species(species)
 
     print("Download phase complete.")
-    splitTrainingAndValidation()
+    split_training_and_validation()
     print("All processing finished.")
+
+
+if __name__ == "__main__":
+    main()
