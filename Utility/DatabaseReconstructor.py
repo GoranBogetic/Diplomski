@@ -1,6 +1,7 @@
 import os
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from SpeciesList import speciesList
 
 # ==== CONFIGURATION ====
 BASE_DIR = os.path.dirname(__file__)
@@ -15,7 +16,7 @@ URLS_LOG_PATH = os.path.join(SOURCES_DIR, "ImageSources.txt")
 
 
 # ==== DOWNLOAD HELPERS ====
-def download_image(url, save_path):
+def downloadImage(url, save_path):
     """Download a single image from a URL."""
     try:
         response = requests.get(url, timeout=15, stream=True)
@@ -30,22 +31,22 @@ def download_image(url, save_path):
         return False
 
 
-def download_images_for_folder(species_name, urls, out_dir, threads):
+def downloadImagesForFolder(species_name, urls, out_dir, threads):
     """Download all URLs into a folder in parallel."""
     os.makedirs(out_dir, exist_ok=True)
     count = 0
 
     with ThreadPoolExecutor(max_workers=threads) as executor:
-        future_to_url = {}
+        futureToUrl = {}
         for idx, url in enumerate(urls):
-            file_name = f"{species_name}_{idx}.jpg"
-            file_path = os.path.join(out_dir, file_name)
-            if os.path.exists(file_path):
+            fileName = f"{species_name}_{idx}.jpg"
+            filePath = os.path.join(out_dir, fileName)
+            if os.path.exists(filePath):
                 continue
-            future = executor.submit(download_image, url, file_path)
-            future_to_url[future] = url
+            future = executor.submit(downloadImage, url, filePath)
+            futureToUrl[future] = url
 
-        for future in as_completed(future_to_url):
+        for future in as_completed(futureToUrl):
             if future.result():
                 count += 1
 
@@ -54,53 +55,62 @@ def download_images_for_folder(species_name, urls, out_dir, threads):
 
 
 # ==== PARSING HELPER ====
-def parse_image_sources(file_path):
+def parseImageSources(filePath):
     """
     Parse ImageSources.txt into a dict:
     {species_name: {"train": [urls], "val": [urls]}}
     """
-    species_dict = {}
-    current_species = None
+    speciesDict = {}
+    currentSpecies = None
 
-    if not os.path.exists(file_path):
-        print(f"{file_path} does not exist!")
-        return species_dict
+    if not os.path.exists(filePath):
+        print(f"{filePath} does not exist!")
+        return speciesDict
 
-    with open(file_path, "r") as f:
+    with open(filePath, "r") as f:
         for line in f:
             line = line.strip()
             if line.startswith("===") and line.endswith("==="):
-                current_species = line.strip("= ").strip()
-                species_dict[current_species] = {"train": [], "val": []}
-            elif line and current_species:
+                currentSpecies = line.strip("= ").strip()
+                speciesDict[currentSpecies] = {"train": [], "val": []}
+            elif line and currentSpecies:
                 if line.startswith("train:"):
-                    species_dict[current_species]["train"].append(line[len("train:"):].strip())
+                    speciesDict[currentSpecies]["train"].append(line[len("train:"):].strip())
                 elif line.startswith("val:"):
-                    species_dict[current_species]["val"].append(line[len("val:"):].strip())
+                    speciesDict[currentSpecies]["val"].append(line[len("val:"):].strip())
                 else:
                     # default to train if no prefix
-                    species_dict[current_species]["train"].append(line)
-    return species_dict
+                    speciesDict[currentSpecies]["train"].append(line)
+    return speciesDict
+
+def writeClassnames(trainDir, valDir, species_list):
+    """Create classnames.txt in train and val folders containing species names."""
+    classnames = [name for name, _ in species_list]
+    for folder in [trainDir, valDir]:
+        with open(os.path.join(folder, "classnames.txt"), "w") as f:
+            f.write("\n".join(classnames))
+    print("classnames.txt created in train and val folders.")
 
 
 # ==== MAIN RECONSTRUCTION ====
-def reconstruct_database_with_split():
+def reconstructDatabaseWithSplit():
     os.makedirs(TRAIN_DIR, exist_ok=True)
     os.makedirs(VAL_DIR, exist_ok=True)
 
-    species_urls = parse_image_sources(URLS_LOG_PATH)
+    speciesUrls = parseImageSources(URLS_LOG_PATH)
 
-    for species_name, data in species_urls.items():
+    for species_name, data in speciesUrls.items():
         train_urls = data.get("train", [])
         val_urls = data.get("val", [])
 
         print(f"Reconstructing {species_name}: {len(train_urls)} train, {len(val_urls)} val")
 
-        download_images_for_folder(species_name, train_urls, os.path.join(TRAIN_DIR, species_name), THREADS_PER_SPECIES)
-        download_images_for_folder(species_name, val_urls, os.path.join(VAL_DIR, species_name), THREADS_PER_SPECIES)
+        downloadImagesForFolder(species_name, train_urls, os.path.join(TRAIN_DIR, species_name), THREADS_PER_SPECIES)
+        downloadImagesForFolder(species_name, val_urls, os.path.join(VAL_DIR, species_name), THREADS_PER_SPECIES)
 
     print("Database reconstruction with train/val split complete.")
 
 
 if __name__ == "__main__":
-    reconstruct_database_with_split()
+    reconstructDatabaseWithSplit()
+    writeClassnames(TRAIN_DIR, VAL_DIR, speciesList)

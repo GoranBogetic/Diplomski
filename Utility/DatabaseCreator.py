@@ -2,7 +2,7 @@ import os
 import requests
 import random
 import shutil
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from SpeciesList import speciesList
 
 # ==== CONFIGURATION ====
@@ -39,7 +39,7 @@ def fetch_from_page(taxon_id, licenses, page, per_page):
 
 
 # ==== DOWNLOAD HELPER ====
-def download_image(url, save_path):
+def downloadImage(url, save_path):
     """Download an image from a URL and save it."""
     try:
         img_data = requests.get(url, timeout=15).content
@@ -84,14 +84,14 @@ def process_species(species):
                         break
                     photo_url = photo['url'].replace('square', 'original')
                     file_name = f"{species_name}_{count + len(download_tasks)}.jpg"
-                    file_path = os.path.join(species_folder, file_name)
+                    filePath = os.path.join(species_folder, file_name)
                     download_tasks.append(
-                        (executor.submit(download_image, photo_url, file_path), photo_url, file_path)
+                        (executor.submit(downloadImage, photo_url, filePath), photo_url, filePath)
                     )
 
-            for future, url, file_path in download_tasks:
+            for future, url, filePath in download_tasks:
                 if future.result():
-                    all_downloaded_files.append((url, file_path))
+                    all_downloaded_files.append((url, filePath))
                     count += 1
 
     print(f"Finished downloading {count} images for {species_name}.")
@@ -117,12 +117,12 @@ def split_training_and_validation(species_files):
 
         split_mapping[species_name] = {"train": [], "val": []}
 
-        for url, file_path in files:
-            file_name = os.path.basename(file_path)
-            if (url, file_path) in val_files:
+        for url, filePath in files:
+            file_name = os.path.basename(filePath)
+            if (url, filePath) in val_files:
                 # move file to val
                 destination_path = os.path.join(val_species_folder, file_name)
-                shutil.move(file_path, destination_path)
+                shutil.move(filePath, destination_path)
                 split_mapping[species_name]["val"].append(url)
             else:
                 split_mapping[species_name]["train"].append(url)
@@ -143,6 +143,16 @@ def log_urls(split_mapping, log_path):
             for url in sets["val"]:
                 f.write(f"val: {url}\n")
             f.write("\n")
+
+
+# ==== CLASSNAMES FILE CREATOR ====
+def writeClassnames(trainDir, valDir, species_list):
+    """Create classnames.txt in train and val folders containing species names."""
+    classnames = [name for name, _ in species_list]
+    for folder in [trainDir, valDir]:
+        with open(os.path.join(folder, "classnames.txt"), "w") as f:
+            f.write("\n".join(classnames))
+    print("classnames.txt created in train and val folders.")
 
 
 # ==== MAIN ====
@@ -168,5 +178,8 @@ if __name__ == "__main__":
     # Split into train/val and log
     split_mapping = split_training_and_validation(species_files)
     log_urls(split_mapping, URLS_LOG_PATH)
+
+    # Write classnames.txt files
+    writeClassnames(TRAIN_DIR, VAL_DIR, speciesList)
 
     print("All processing finished.")
