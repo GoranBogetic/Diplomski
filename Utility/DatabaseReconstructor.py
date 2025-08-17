@@ -31,16 +31,16 @@ def downloadImage(url, save_path):
         return False
 
 
-def downloadImagesForFolder(species_name, urls, out_dir, threads):
+def downloadImagesForFolder(speciesName, urls, outDir, threads):
     """Download all URLs into a folder in parallel."""
-    os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(outDir, exist_ok=True)
     count = 0
 
     with ThreadPoolExecutor(max_workers=threads) as executor:
         futureToUrl = {}
         for idx, url in enumerate(urls):
-            fileName = f"{species_name}_{idx}.jpg"
-            filePath = os.path.join(out_dir, fileName)
+            fileName = f"{speciesName}_{idx}.jpg"
+            filePath = os.path.join(outDir, fileName)
             if os.path.exists(filePath):
                 continue
             future = executor.submit(downloadImage, url, filePath)
@@ -50,7 +50,7 @@ def downloadImagesForFolder(species_name, urls, out_dir, threads):
             if future.result():
                 count += 1
 
-    print(f"Downloaded {count} images for {species_name} in {out_dir}")
+    print(f"Downloaded {count} images for {speciesName} in {outDir}")
     return count
 
 
@@ -58,7 +58,7 @@ def downloadImagesForFolder(species_name, urls, out_dir, threads):
 def parseImageSources(filePath):
     """
     Parse ImageSources.txt into a dict:
-    {species_name: {"train": [urls], "val": [urls]}}
+    {speciesName: {"train": [urls], "val": [urls]}}
     """
     speciesDict = {}
     currentSpecies = None
@@ -83,9 +83,9 @@ def parseImageSources(filePath):
                     speciesDict[currentSpecies]["train"].append(line)
     return speciesDict
 
-def writeClassnames(trainDir, valDir, species_list):
+def writeClassnames(trainDir, valDir, speciesList):
     """Create classnames.txt in train and val folders containing species names."""
-    classnames = [name for name, _ in species_list]
+    classnames = [name for name, _ in speciesList]
     for folder in [trainDir, valDir]:
         with open(os.path.join(folder, "classnames.txt"), "w") as f:
             f.write("\n".join(classnames))
@@ -99,14 +99,14 @@ def reconstructDatabaseWithSplit():
 
     speciesUrls = parseImageSources(URLS_LOG_PATH)
 
-    for species_name, data in speciesUrls.items():
-        train_urls = data.get("train", [])
-        val_urls = data.get("val", [])
+    for speciesName, data in speciesUrls.items():
+        trainUrls = data.get("train", [])
+        valUrls = data.get("val", [])
 
-        print(f"Reconstructing {species_name}: {len(train_urls)} train, {len(val_urls)} val")
+        print(f"Reconstructing {speciesName}: {len(trainUrls)} train, {len(valUrls)} val")
 
-        downloadImagesForFolder(species_name, train_urls, os.path.join(TRAIN_DIR, species_name), THREADS_PER_SPECIES)
-        downloadImagesForFolder(species_name, val_urls, os.path.join(VAL_DIR, species_name), THREADS_PER_SPECIES)
+        downloadImagesForFolder(speciesName, trainUrls, os.path.join(TRAIN_DIR, speciesName), THREADS_PER_SPECIES)
+        downloadImagesForFolder(speciesName, valUrls, os.path.join(VAL_DIR, speciesName), THREADS_PER_SPECIES)
 
     print("Database reconstruction with train/val split complete.")
 

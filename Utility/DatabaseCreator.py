@@ -24,13 +24,13 @@ URLS_LOG_PATH = os.path.join(SOURCES_DIR, "ImageSources.txt")
 
 
 # ==== API HELPER ====
-def fetch_from_page(taxon_id, licenses, page, per_page):
+def fetchFromPage(taxonId, licenses, page, perPage):
     """Fetch one page of observations from iNaturalist API."""
     url = "https://api.inaturalist.org/v1/observations"
     params = {
-        "taxon_id": taxon_id,
+        "taxonId": taxonId,
         "photo_license": ",".join(licenses),
-        "per_page": per_page,
+        "per_page": perPage,
         "page": page
     }
     response = requests.get(url, params=params, timeout=15)
@@ -39,12 +39,12 @@ def fetch_from_page(taxon_id, licenses, page, per_page):
 
 
 # ==== DOWNLOAD HELPER ====
-def downloadImage(url, save_path):
+def downloadImage(url, savePath):
     """Download an image from a URL and save it."""
     try:
-        img_data = requests.get(url, timeout=15).content
-        with open(save_path, 'wb') as handler:
-            handler.write(img_data)
+        imgData = requests.get(url, timeout=15).content
+        with open(savePath, 'wb') as handler:
+            handler.write(imgData)
         return True
     except Exception as e:
         print(f"Failed to save {url}: {e}")
@@ -52,92 +52,92 @@ def downloadImage(url, save_path):
 
 
 # ==== SPECIES PROCESSING ====
-def process_species(species):
+def processSpecies(species):
     """Download all images for one species using threads."""
-    species_name, taxon_id = species
-    species_folder = os.path.join(TRAIN_DIR, species_name)
-    os.makedirs(species_folder, exist_ok=True)
+    speciesName, taxonId = species
+    speciesFolder = os.path.join(TRAIN_DIR, speciesName)
+    os.makedirs(speciesFolder, exist_ok=True)
 
     count = 0
-    all_downloaded_files = []
+    allDownloadedFiles = []
 
     for page in range(1, MAX_PAGES + 1):
         if count >= MAX_IMAGES_PER_SPECIES:
-            print(f"Reached max images for {species_name}")
+            print(f"Reached max images for {speciesName}")
             break
 
         try:
-            data = fetch_from_page(taxon_id, LICENSES, page, PER_PAGE)
+            data = fetchFromPage(taxonId, LICENSES, page, PER_PAGE)
         except Exception as e:
-            print(f"Error fetching page {page} for {species_name}: {e}")
+            print(f"Error fetching page {page} for {speciesName}: {e}")
             break
 
         results = data.get('results', [])
         if not results:
             break
 
-        download_tasks = []
+        downloadTasks = []
         with ThreadPoolExecutor(max_workers=THREADS_PER_SPECIES) as executor:
             for obs in results:
                 for photo in obs.get('photos', []):
-                    if count + len(download_tasks) >= MAX_IMAGES_PER_SPECIES:
+                    if count + len(downloadTasks) >= MAX_IMAGES_PER_SPECIES:
                         break
-                    photo_url = photo['url'].replace('square', 'original')
-                    file_name = f"{species_name}_{count + len(download_tasks)}.jpg"
-                    filePath = os.path.join(species_folder, file_name)
-                    download_tasks.append(
-                        (executor.submit(downloadImage, photo_url, filePath), photo_url, filePath)
+                    photoUrl = photo['url'].replace('square', 'original')
+                    fileName = f"{speciesName}_{count + len(downloadTasks)}.jpg"
+                    filePath = os.path.join(speciesFolder, fileName)
+                    downloadTasks.append(
+                        (executor.submit(downloadImage, photoUrl, filePath), photoUrl, filePath)
                     )
 
-            for future, url, filePath in download_tasks:
+            for future, url, filePath in downloadTasks:
                 if future.result():
-                    all_downloaded_files.append((url, filePath))
+                    allDownloadedFiles.append((url, filePath))
                     count += 1
 
-    print(f"Finished downloading {count} images for {species_name}.")
-    return all_downloaded_files
+    print(f"Finished downloading {count} images for {speciesName}.")
+    return allDownloadedFiles
 
 
 # ==== TRAIN/VAL SPLIT ====
-def split_training_and_validation(species_files):
+def splitTrainingAndValidation(speciesFiles):
     """Split images into train and val folders and return mapping for logging."""
-    split_mapping = {}  # {species_name: {"train": [urls], "val": [urls]}}
+    splitMapping = {}  # {speciesName: {"train": [urls], "val": [urls]}}
 
-    for species_name, files in species_files.items():
+    for speciesName, files in speciesFiles.items():
         if not files:
             continue
 
-        train_files = files.copy()
-        num_val = max(1, int(len(files) * VAL_SPLIT))
-        val_files = random.sample(train_files, num_val)
+        trainFiles = files.copy()
+        numVal = max(1, int(len(files) * VAL_SPLIT))
+        valFiles = random.sample(trainFiles, numVal)
 
         # prepare folders
-        val_species_folder = os.path.join(VAL_DIR, species_name)
-        os.makedirs(val_species_folder, exist_ok=True)
+        valSpeciesFolder = os.path.join(VAL_DIR, speciesName)
+        os.makedirs(valSpeciesFolder, exist_ok=True)
 
-        split_mapping[species_name] = {"train": [], "val": []}
+        splitMapping[speciesName] = {"train": [], "val": []}
 
         for url, filePath in files:
-            file_name = os.path.basename(filePath)
-            if (url, filePath) in val_files:
+            fileName = os.path.basename(filePath)
+            if (url, filePath) in valFiles:
                 # move file to val
-                destination_path = os.path.join(val_species_folder, file_name)
+                destination_path = os.path.join(valSpeciesFolder, fileName)
                 shutil.move(filePath, destination_path)
-                split_mapping[species_name]["val"].append(url)
+                splitMapping[speciesName]["val"].append(url)
             else:
-                split_mapping[species_name]["train"].append(url)
+                splitMapping[speciesName]["train"].append(url)
 
-        print(f"Moved {len(val_files)} images from {species_name} to validation set.")
+        print(f"Moved {len(valFiles)} images from {speciesName} to validation set.")
 
-    return split_mapping
+    return splitMapping
 
 
 # ==== LOGGING ====
-def log_urls(split_mapping, log_path):
+def logUrls(splitMapping, logPath):
     """Write all URLs into ImageSources.txt with train/val prefixes."""
-    with open(log_path, "a") as f:
-        for species_name, sets in split_mapping.items():
-            f.write(f"=== {species_name} ===\n")
+    with open(logPath, "a") as f:
+        for speciesName, sets in splitMapping.items():
+            f.write(f"=== {speciesName} ===\n")
             for url in sets["train"]:
                 f.write(f"train: {url}\n")
             for url in sets["val"]:
@@ -146,9 +146,9 @@ def log_urls(split_mapping, log_path):
 
 
 # ==== CLASSNAMES FILE CREATOR ====
-def writeClassnames(trainDir, valDir, species_list):
+def writeClassnames(trainDir, valDir, speciesList):
     """Create classnames.txt in train and val folders containing species names."""
-    classnames = [name for name, _ in species_list]
+    classnames = [name for name, _ in speciesList]
     for folder in [trainDir, valDir]:
         with open(os.path.join(folder, "classnames.txt"), "w") as f:
             f.write("\n".join(classnames))
@@ -165,19 +165,19 @@ if __name__ == "__main__":
     if os.path.exists(URLS_LOG_PATH):
         os.remove(URLS_LOG_PATH)
 
-    species_files = {}
+    speciesFiles = {}
 
     # Download images species by species
     for species in speciesList:
-        downloaded_files = process_species(species)
-        species_name, _ = species
-        species_files[species_name] = downloaded_files
+        downloadedFiles = processSpecies(species)
+        speciesName, _ = species
+        speciesFiles[speciesName] = downloadedFiles
 
     print("Download phase complete.")
 
     # Split into train/val and log
-    split_mapping = split_training_and_validation(species_files)
-    log_urls(split_mapping, URLS_LOG_PATH)
+    splitMapping = splitTrainingAndValidation(speciesFiles)
+    logUrls(splitMapping, URLS_LOG_PATH)
 
     # Write classnames.txt files
     writeClassnames(TRAIN_DIR, VAL_DIR, speciesList)
