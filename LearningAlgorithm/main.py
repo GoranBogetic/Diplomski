@@ -25,11 +25,11 @@ os.makedirs(ANDROID_MODEL_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(ANDROID_MODEL_APP_PATH), exist_ok=True)
 os.makedirs(os.path.dirname(PLANT_CALLSSES_APP_PATH), exist_ok=True)
 
-BATCH_SIZE = 16
-NUM_OF_EPOCHS = 1
-NUM_OF_WORKERS = 8
+BATCH_SIZE = 8
+NUM_OF_EPOCHS = 50
+NUM_OF_WORKERS = 4
 LEARNING_RATE = 1e-4
-PATIENCE = 5
+PATIENCE = 4
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

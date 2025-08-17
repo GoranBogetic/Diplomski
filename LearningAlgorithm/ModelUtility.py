@@ -46,28 +46,28 @@ def convertModelToAndroidModel(model, modelWeightsPath, androidModelPath, androi
     # Trace model for TorchScript
     try:
         model.eval()
-        model_cpu = model.to('cpu')
-        example_input = torch.rand(1, 3, 224, 224)
-        traced_model = torch.jit.trace(model_cpu, example_input)
+        modelCpu = model.to('cpu')
+        exampleInput = torch.rand(1, 3, 224, 224)
+        tracedModel = torch.jit.trace(modelCpu, exampleInput)
 
-        traced_model.save(androidModelPath)
+        tracedModel.save(androidModelPath)
         print(f"Android model saved to {androidModelPath}")
 
         if androidModelAppPath:
-            traced_model.save(androidModelAppPath)
+            tracedModel.save(androidModelAppPath)
             print(f"Android model also saved to {androidModelAppPath}")
     except Exception as e:
         print(f"Error tracing/saving model: {e}")
 
 
 def copyPlantClassesToApplication(databaseDir, plantClassesFilePath):
-    train_dir = os.path.join(databaseDir, 'train')
+    trainDir = os.path.join(databaseDir, 'train')
     
-    txt_files = [f for f in os.listdir(train_dir) if f.endswith('.txt')]
-    if not txt_files:
+    txtFiles = [f for f in os.listdir(trainDir) if f.endswith('.txt')]
+    if not txtFiles:
         print("No .txt files found in train directory.")
         return
     
-    source_file = os.path.join(train_dir, txt_files[0])
-    shutil.copyfile(source_file, plantClassesFilePath)
-    print(f"Labels file copied from {source_file} to {plantClassesFilePath}")
+    sourceFile = os.path.join(trainDir, txtFiles[0])
+    shutil.copyfile(sourceFile, plantClassesFilePath)
+    print(f"Labels file copied from {sourceFile} to {plantClassesFilePath}")
