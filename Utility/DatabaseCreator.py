@@ -13,7 +13,7 @@ SOURCES_DIR = os.path.join(BASE_DIR, '../Sources')
 TRAIN_DIR = os.path.join(DATABASE_DIR, 'train')
 VAL_DIR = os.path.join(DATABASE_DIR, 'val')
 
-LICENSES = ["cc0", "cc-by", "cc-by-sa"]
+LICENSES = ["cc0", "cc-by"]   # only fetch these from API
 PER_PAGE = 200
 MAX_IMAGES_PER_SPECIES = 800
 MAX_PAGES = 20
@@ -21,6 +21,7 @@ VAL_SPLIT = 0.125
 THREADS_PER_SPECIES = 200  # parallel downloads per species
 
 URLS_LOG_PATH = os.path.join(SOURCES_DIR, "ImageSources.txt")
+ATTRIBUTIONS_PATH = os.path.join(SOURCES_DIR, "ImageAttributions.txt")
 
 
 # ==== API HELPER ====
@@ -28,7 +29,7 @@ def fetchFromPage(taxonId, licenses, page, perPage):
     """Fetch one page of observations from iNaturalist API."""
     url = "https://api.inaturalist.org/v1/observations"
     params = {
-        "taxonId": taxonId,
+        "taxon_id": taxonId,
         "photo_license": ",".join(licenses),
         "per_page": perPage,
         "page": page
@@ -52,14 +53,16 @@ def downloadImage(url, savePath):
 
 
 # ==== SPECIES PROCESSING ====
-def processSpecies(species):
-    """Download all images for one species using threads."""
+def processSpecies(species, attributionFile):
+    """Download all images for one species and log attributions while downloading."""
     speciesName, taxonId = species
     speciesFolder = os.path.join(TRAIN_DIR, speciesName)
     os.makedirs(speciesFolder, exist_ok=True)
 
     count = 0
     allDownloadedFiles = []
+
+    attributionFile.write(f"=== {speciesName} ===\n")
 
     for page in range(1, MAX_PAGES + 1):
         if count >= MAX_IMAGES_PER_SPECIES:
@@ -82,18 +85,33 @@ def processSpecies(species):
                 for photo in obs.get('photos', []):
                     if count + len(downloadTasks) >= MAX_IMAGES_PER_SPECIES:
                         break
+
+                    license_code = photo.get("license_code")
+                    attribution = photo.get("attribution")
                     photoUrl = photo['url'].replace('square', 'original')
-                    fileName = f"{speciesName}_{count + len(downloadTasks)}.jpg"
-                    filePath = os.path.join(speciesFolder, fileName)
-                    downloadTasks.append(
-                        (executor.submit(downloadImage, photoUrl, filePath), photoUrl, filePath)
-                    )
+
+                    # Skip if no license
+                    if not license_code:
+                        continue
+
+                    # Record attribution only for cc-by / cc-by-sa
+                    if license_code in ["cc-by", "cc-by-sa"] and attribution:
+                        attributionFile.write(f"{license_code}: {attribution} ({photoUrl})\n")
+
+                    # Download if cc0, cc-by, cc-by-sa
+                    if license_code in ["cc0", "cc-by", "cc-by-sa"]:
+                        fileName = f"{speciesName}_{count + len(downloadTasks)}.jpg"
+                        filePath = os.path.join(speciesFolder, fileName)
+                        downloadTasks.append(
+                            (executor.submit(downloadImage, photoUrl, filePath), photoUrl, filePath)
+                        )
 
             for future, url, filePath in downloadTasks:
                 if future.result():
                     allDownloadedFiles.append((url, filePath))
                     count += 1
 
+    attributionFile.write("\n")
     print(f"Finished downloading {count} images for {speciesName}.")
     return allDownloadedFiles
 
@@ -161,17 +179,20 @@ if __name__ == "__main__":
     os.makedirs(VAL_DIR, exist_ok=True)
     os.makedirs(SOURCES_DIR, exist_ok=True)
 
-    # Clear previous log
+    # Clear previous logs
     if os.path.exists(URLS_LOG_PATH):
         os.remove(URLS_LOG_PATH)
+    if os.path.exists(ATTRIBUTIONS_PATH):
+        os.remove(ATTRIBUTIONS_PATH)
 
     speciesFiles = {}
 
-    # Download images species by species
-    for species in speciesList:
-        downloadedFiles = processSpecies(species)
-        speciesName, _ = species
-        speciesFiles[speciesName] = downloadedFiles
+    with open(ATTRIBUTIONS_PATH, "w", encoding="utf-8") as attrFile:
+        # Download images species by species
+        for species in speciesList:
+            downloadedFiles = processSpecies(species, attrFile)
+            speciesName, _ = species
+            speciesFiles[speciesName] = downloadedFiles
 
     print("Download phase complete.")
 
