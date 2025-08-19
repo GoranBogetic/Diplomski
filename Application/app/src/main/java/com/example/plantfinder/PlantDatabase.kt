@@ -401,7 +401,7 @@ val plantInfo = mapOf(
         description = "A bulbous flowering plant with showy flowers. Ornamental, not edible.",
         isEdible = false
     ),
-    "nlivetree" to PlantData(
+    "olivetree" to PlantData(
         englishName = "Olive Tree",
         croatianName = "Maslina",
         latinName = "Olea europaea",

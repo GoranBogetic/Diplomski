@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "PlantFinderMain"
-        private const val MODEL_ASSET_NAME = "plant_classifier_efficientnetb0.ptl"
+        private const val MODEL_ASSET_NAME = "plant_classifier_efficientnetb3.ptl"
         private const val LABELS_ASSET_NAME = "labels.txt"
     }
 
