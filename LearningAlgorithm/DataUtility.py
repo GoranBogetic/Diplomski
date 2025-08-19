@@ -4,7 +4,7 @@ import os
 
 def getDataLoaders(databaseDir, batchSize, numOfWorkers):
     transformTrainingData = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+        transforms.RandomResizedCrop(300, scale=(0.8, 1.0)), # Change to 300 if using EfficientNet-B3
         transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
         transforms.RandomRotation(degrees=30),
@@ -19,7 +19,7 @@ def getDataLoaders(databaseDir, batchSize, numOfWorkers):
 
     transformValidationData = transforms.Compose([
         transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.CenterCrop(300), # Change to 300 if using EfficientNet-B3
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406],
                              [0.229, 0.224, 0.225])

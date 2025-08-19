@@ -13,22 +13,25 @@ DATABASE_DIR = os.path.join(BASE_DIR, '../Database')
 TRAINING_FEEDBACK_DIR = os.path.join(BASE_DIR, '../TrainingFeedback')
 MODELS_DIR = os.path.join(BASE_DIR, '../Models')
 MODEL_WEIGHTS_DIR = os.path.join(MODELS_DIR, 'ModelWeights')
-MODEL_WEIGHTS_PATH = os.path.join(MODEL_WEIGHTS_DIR, 'plant_classifier_efficientnetb0.pth')
+MODEL_WEIGHTS_PATH = os.path.join(MODEL_WEIGHTS_DIR, 'plant_classifier_efficientnetb3.pth')
 ANDROID_MODEL_DIR = os.path.join(MODELS_DIR, 'AndroidModel')
-ANDROID_MODEL_PATH = os.path.join(ANDROID_MODEL_DIR, 'plant_classifier_efficientnetb0.ptl')
-ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb0.ptl')
-PLANT_CALLSSES_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/labels.txt')
+ANDROID_MODEL_PATH = os.path.join(ANDROID_MODEL_DIR, 'plant_classifier_efficientnetb3.ptl')
+ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb3.ptl')
+PLANT_CLASSES_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/labels.txt')
 
 os.makedirs(TRAINING_FEEDBACK_DIR, exist_ok=True)
 os.makedirs(MODEL_WEIGHTS_DIR, exist_ok=True)
 os.makedirs(ANDROID_MODEL_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(ANDROID_MODEL_APP_PATH), exist_ok=True)
-os.makedirs(os.path.dirname(PLANT_CALLSSES_APP_PATH), exist_ok=True)
+os.makedirs(os.path.dirname(PLANT_CLASSES_APP_PATH), exist_ok=True)
 
-BATCH_SIZE = 8
-NUM_OF_EPOCHS = 50
+# Training is done on Nvidia RTX 4060 laptop GPU
+# Batch size and Number of workers are set like this to prevent out of memory errors
+BATCH_SIZE = 8 # could be 16 for efficientnet-b3
+NUM_OF_EPOCHS = 30
 NUM_OF_WORKERS = 4
 LEARNING_RATE = 1e-4
+# Determines how many epochs to wait for improvement before stopping training
 PATIENCE = 4
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -64,7 +67,7 @@ def main():
             f.write(f"Epoch {i+1}: {acc:.4f}\n")
 
     convertModelToAndroidModel(model, MODEL_WEIGHTS_PATH, ANDROID_MODEL_PATH, ANDROID_MODEL_APP_PATH)
-    copyPlantClassesToApplication(DATABASE_DIR, PLANT_CALLSSES_APP_PATH)
+    copyPlantClassesToApplication(DATABASE_DIR, PLANT_CLASSES_APP_PATH)
 
 if __name__ == "__main__":
     main()

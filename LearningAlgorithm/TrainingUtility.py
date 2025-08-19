@@ -8,7 +8,6 @@ def modelTraining(model, dataloaders, criterion, optimizer, device, numOfEpochs,
     validationLossHistory = []
     validationAccuracyHistory = []
 
-    bestValidationLoss = float('inf')
     epochsWithNoImprovement = 0
 
     for epoch in range(numOfEpochs):
@@ -49,14 +48,13 @@ def modelTraining(model, dataloaders, criterion, optimizer, device, numOfEpochs,
             else:
                 validationLossHistory.append(epochLoss)
                 validationAccuracyHistory.append(epochAccuracy.item())
-                if epochLoss < bestValidationLoss:
-                    bestValidationLoss = epochLoss
-                    epochsWithNoImprovement = 0
-                else:
-                    epochsWithNoImprovement += 1
+
                 if epochAccuracy > bestValidationAccuracy:
                     bestValidationAccuracy = epochAccuracy
                     bestModelWeights = copy.deepcopy(model.state_dict())
+                    epochsWithNoImprovement = 0
+                else:
+                    epochsWithNoImprovement += 1
 
         if epochsWithNoImprovement >= patience:
             print(f"Early stopping triggered at epoch {epoch + 1}")
