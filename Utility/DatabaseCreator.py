@@ -2,7 +2,8 @@ import os
 import requests
 import random
 import shutil
-from concurrent.futures import ThreadPoolExecutor
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from SpeciesList import speciesList
 
 # ==== CONFIGURATION ====
@@ -18,11 +19,13 @@ PER_PAGE = 200
 MAX_IMAGES_PER_SPECIES = 800
 MAX_PAGES = 20
 VAL_SPLIT = 0.125
-THREADS_PER_SPECIES = 200  # parallel downloads per species
+GLOBAL_THREADS = 160  # global thread pool size
 
 URLS_LOG_PATH = os.path.join(SOURCES_DIR, "ImageSources.txt")
 ATTRIBUTIONS_PATH = os.path.join(SOURCES_DIR, "ImageAttributions.txt")
 
+# ==== GLOBAL EXECUTOR ====
+GLOBAL_EXECUTOR = ThreadPoolExecutor(max_workers=GLOBAL_THREADS)
 
 # ==== API HELPER ====
 def fetchFromPage(taxonId, licenses, page, perPage):
@@ -38,7 +41,6 @@ def fetchFromPage(taxonId, licenses, page, perPage):
     response.raise_for_status()
     return response.json()
 
-
 # ==== DOWNLOAD HELPER ====
 def downloadImage(url, savePath):
     """Download an image from a URL and save it."""
@@ -50,7 +52,6 @@ def downloadImage(url, savePath):
     except Exception as e:
         print(f"Failed to save {url}: {e}")
         return False
-
 
 # ==== SPECIES PROCESSING ====
 def processSpecies(species, attributionFile):
@@ -80,41 +81,41 @@ def processSpecies(species, attributionFile):
             break
 
         downloadTasks = []
-        with ThreadPoolExecutor(max_workers=THREADS_PER_SPECIES) as executor:
-            for obs in results:
-                for photo in obs.get('photos', []):
-                    if count + len(downloadTasks) >= MAX_IMAGES_PER_SPECIES:
-                        break
+        for obs in results:
+            for photo in obs.get('photos', []):
+                if count + len(downloadTasks) >= MAX_IMAGES_PER_SPECIES:
+                    break
 
-                    license_code = photo.get("license_code")
-                    attribution = photo.get("attribution")
-                    photoUrl = photo['url'].replace('square', 'original')
+                license_code = photo.get("license_code")
+                attribution = photo.get("attribution")
+                photoUrl = photo['url'].replace('square', 'original')
 
-                    # Skip if no license
-                    if not license_code:
-                        continue
+                if not license_code:
+                    continue
 
-                    # Record attribution only for cc-by / cc-by-sa
-                    if license_code in ["cc-by", "cc-by-sa"] and attribution:
-                        attributionFile.write(f"{license_code}: {attribution} ({photoUrl})\n")
+                # Record attribution only for cc-by
+                if license_code in ["cc-by"] and attribution:
+                    attributionFile.write(f"{license_code}: {attribution} ({photoUrl})\n")
 
-                    # Download if cc0, cc-by, cc-by-sa
-                    if license_code in ["cc0", "cc-by", "cc-by-sa"]:
-                        fileName = f"{speciesName}_{count + len(downloadTasks)}.jpg"
-                        filePath = os.path.join(speciesFolder, fileName)
-                        downloadTasks.append(
-                            (executor.submit(downloadImage, photoUrl, filePath), photoUrl, filePath)
-                        )
+                # Download if cc0 or cc-by
+                if license_code in ["cc0", "cc-by"]:
+                    fileName = f"{speciesName}_{count + len(downloadTasks)}.jpg"
+                    filePath = os.path.join(speciesFolder, fileName)
+                    future = GLOBAL_EXECUTOR.submit(downloadImage, photoUrl, filePath)
+                    downloadTasks.append((future, photoUrl, filePath))
 
-            for future, url, filePath in downloadTasks:
-                if future.result():
-                    allDownloadedFiles.append((url, filePath))
-                    count += 1
+        # collect results
+        for future, url, filePath in downloadTasks:
+            if future.result():
+                allDownloadedFiles.append((url, filePath))
+                count += 1
+
+        # polite pause between API page requests
+        time.sleep(0.1)
 
     attributionFile.write("\n")
     print(f"Finished downloading {count} images for {speciesName}.")
     return allDownloadedFiles
-
 
 # ==== TRAIN/VAL SPLIT ====
 def splitTrainingAndValidation(speciesFiles):
@@ -149,7 +150,6 @@ def splitTrainingAndValidation(speciesFiles):
 
     return splitMapping
 
-
 # ==== LOGGING ====
 def logUrls(splitMapping, logPath):
     """Write all URLs into ImageSources.txt with train/val prefixes."""
@@ -162,7 +162,6 @@ def logUrls(splitMapping, logPath):
                 f.write(f"val: {url}\n")
             f.write("\n")
 
-
 # ==== CLASSNAMES FILE CREATOR ====
 def writeClassnames(trainDir, valDir, speciesList):
     """Create classnames.txt in train and val folders containing species names."""
@@ -171,7 +170,6 @@ def writeClassnames(trainDir, valDir, speciesList):
         with open(os.path.join(folder, "classnames.txt"), "w") as f:
             f.write("\n".join(classnames))
     print("classnames.txt created in train and val folders.")
-
 
 # ==== MAIN ====
 if __name__ == "__main__":
@@ -188,7 +186,6 @@ if __name__ == "__main__":
     speciesFiles = {}
 
     with open(ATTRIBUTIONS_PATH, "w", encoding="utf-8") as attrFile:
-        # Download images species by species
         for species in speciesList:
             downloadedFiles = processSpecies(species, attrFile)
             speciesName, _ = species
@@ -204,3 +201,6 @@ if __name__ == "__main__":
     writeClassnames(TRAIN_DIR, VAL_DIR, speciesList)
 
     print("All processing finished.")
+
+    # shutdown global executor
+    GLOBAL_EXECUTOR.shutdown(wait=True)
