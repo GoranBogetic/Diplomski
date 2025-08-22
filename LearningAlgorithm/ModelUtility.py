@@ -4,23 +4,6 @@ import torch
 from torchvision import models
 from torchvision.models.efficientnet import EfficientNet_B3_Weights
 
-BASE_DIR = os.path.dirname(__file__)
-DATABASE_DIR = os.path.join(BASE_DIR, '../Database')
-TRAINING_FEEDBACK_DIR = os.path.join(BASE_DIR, '../TrainingFeedback')
-MODELS_DIR = os.path.join(BASE_DIR, '../Models')
-MODEL_WEIGHTS_DIR = os.path.join(MODELS_DIR, 'ModelWeights')
-MODEL_WEIGHTS_PATH = os.path.join(MODEL_WEIGHTS_DIR, 'plant_classifier_efficientnetb3.pth')
-ANDROID_MODEL_DIR = os.path.join(MODELS_DIR, 'AndroidModel')
-ANDROID_MODEL_PATH = os.path.join(ANDROID_MODEL_DIR, 'plant_classifier_efficientnetb3.ptl')
-ANDROID_MODEL_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/plant_classifier_efficientnetb3.ptl')
-PLANT_CLASSES_APP_PATH = os.path.join(BASE_DIR, '../Application/app/src/main/assets/labels.txt')
-
-os.makedirs(TRAINING_FEEDBACK_DIR, exist_ok=True)
-os.makedirs(MODEL_WEIGHTS_DIR, exist_ok=True)
-os.makedirs(ANDROID_MODEL_DIR, exist_ok=True)
-os.makedirs(os.path.dirname(ANDROID_MODEL_APP_PATH), exist_ok=True)
-os.makedirs(os.path.dirname(PLANT_CLASSES_APP_PATH), exist_ok=True)
-
 # Training is done on Nvidia RTX 4060 laptop GPU
 # Batch size and Number of workers are set like this to prevent out of memory errors
 BATCH_SIZE = 8 # could be 16 for efficientnet-b3
@@ -35,7 +18,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def initializeModel(numClasses, device):
     model = models.efficientnet_b3(weights=EfficientNet_B3_Weights.DEFAULT)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, numClasses)
-    #model = model.to(device)
+    model = model.to(device)
     return model
 
 def convertModelToAndroidModel(model, modelWeightsPath, androidModelPath, androidModelAppPath):
@@ -88,11 +71,3 @@ def copyPlantClassesToApplication(databaseDir, plantClassesFilePath):
     sourceFile = os.path.join(trainDir, txtFiles[0])
     shutil.copyfile(sourceFile, plantClassesFilePath)
     print(f"Labels file copied from {sourceFile} to {plantClassesFilePath}")
-
-
-if __name__ == "__main__":
-    # Example usage
-    numClasses = 108  # Replace with actual number of classes
-    model = initializeModel(numClasses, DEVICE)
-    
-    convertModelToAndroidModel(model, MODEL_WEIGHTS_PATH, ANDROID_MODEL_PATH, ANDROID_MODEL_APP_PATH)
