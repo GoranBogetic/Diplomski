@@ -4,17 +4,6 @@ import torch
 from torchvision import models
 from torchvision.models.efficientnet import EfficientNet_B3_Weights
 
-# Training is done on Nvidia RTX 4060 laptop GPU
-# Batch size and Number of workers are set like this to prevent out of memory errors
-BATCH_SIZE = 8 # could be 16 for efficientnet-b3
-NUM_OF_EPOCHS = 30
-NUM_OF_WORKERS = 4
-LEARNING_RATE = 1e-4
-# Determines how many epochs to wait for improvement before stopping training
-PATIENCE = 4
-
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 def initializeModel(numClasses, device):
     model = models.efficientnet_b3(weights=EfficientNet_B3_Weights.DEFAULT)
     model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, numClasses)
@@ -22,7 +11,6 @@ def initializeModel(numClasses, device):
     return model
 
 def convertModelToAndroidModel(model, modelWeightsPath, androidModelPath, androidModelAppPath):
-    # Ensure output directory exists
     os.makedirs(os.path.dirname(androidModelPath), exist_ok=True)
     if androidModelAppPath:
         os.makedirs(os.path.dirname(androidModelAppPath), exist_ok=True)
@@ -31,7 +19,6 @@ def convertModelToAndroidModel(model, modelWeightsPath, androidModelPath, androi
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device} to load weights.")
 
-    # Load weights
     try:
         state_dict = torch.load(modelWeightsPath, map_location=device)
         # Remove 'module.' prefix if present
@@ -43,7 +30,6 @@ def convertModelToAndroidModel(model, modelWeightsPath, androidModelPath, androi
         print(f"Error loading weights: {e}")
         return
 
-    # Trace model for TorchScript
     try:
         model.eval()
         modelCpu = model.to('cpu')
