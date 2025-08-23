@@ -3,7 +3,6 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from SpeciesList import speciesList
 
-# ==== CONFIGURATION ====
 BASE_DIR = os.path.dirname(__file__)
 DATABASE_DIR = os.path.join(BASE_DIR, '../Database')
 SOURCES_DIR = os.path.join(BASE_DIR, '../Sources')
@@ -11,17 +10,16 @@ SOURCES_DIR = os.path.join(BASE_DIR, '../Sources')
 TRAIN_DIR = os.path.join(DATABASE_DIR, 'train')
 VAL_DIR = os.path.join(DATABASE_DIR, 'val')
 
-THREADS_PER_SPECIES = 200
+THREADS_PER_SPECIES = 160
 URLS_LOG_PATH = os.path.join(SOURCES_DIR, "ImageSources.txt")
 
+GLOBAL_EXECUTOR = ThreadPoolExecutor(max_workers=THREADS_PER_SPECIES)
 
-# ==== DOWNLOAD HELPERS ====
-def downloadImage(url, save_path):
-    """Download a single image from a URL."""
+def downloadImage(url, savePath):
     try:
         response = requests.get(url, timeout=15, stream=True)
         response.raise_for_status()
-        with open(save_path, "wb") as f:
+        with open(savePath, "wb") as f:
             for chunk in response.iter_content(8192):
                 if chunk:
                     f.write(chunk)
@@ -30,36 +28,31 @@ def downloadImage(url, save_path):
         print(f"Failed to download {url}: {e}")
         return False
 
-
-def downloadImagesForFolder(speciesName, urls, outDir, threads):
-    """Download all URLs into a folder in parallel."""
+def downloadImagesForFolder(speciesName, urls, outDir):
     os.makedirs(outDir, exist_ok=True)
+    downloadTasks = []
     count = 0
 
-    with ThreadPoolExecutor(max_workers=threads) as executor:
-        futureToUrl = {}
-        for idx, url in enumerate(urls):
-            fileName = f"{speciesName}_{idx}.jpg"
-            filePath = os.path.join(outDir, fileName)
-            if os.path.exists(filePath):
-                continue
-            future = executor.submit(downloadImage, url, filePath)
-            futureToUrl[future] = url
+    for idx, url in enumerate(urls):
+        fileName = f"{speciesName}_{idx}.jpg"
+        filePath = os.path.join(outDir, fileName)
 
-        for future in as_completed(futureToUrl):
-            if future.result():
-                count += 1
+        if os.path.exists(filePath):
+            continue
+
+        future = GLOBAL_EXECUTOR.submit(downloadImage, url, filePath)
+        downloadTasks.append((future, url))
+
+    for future, url in as_completed(dict(downloadTasks)):
+        if future.result():
+            count += 1
 
     print(f"Downloaded {count} images for {speciesName} in {outDir}")
     return count
 
-
-# ==== PARSING HELPER ====
+#  Parse ImageSources.txt into a dict:
+#  {speciesName: {"train": [urls], "val": [urls]}}
 def parseImageSources(filePath):
-    """
-    Parse ImageSources.txt into a dict:
-    {speciesName: {"train": [urls], "val": [urls]}}
-    """
     speciesDict = {}
     currentSpecies = None
 
@@ -79,20 +72,16 @@ def parseImageSources(filePath):
                 elif line.startswith("val:"):
                     speciesDict[currentSpecies]["val"].append(line[len("val:"):].strip())
                 else:
-                    # default to train if no prefix
                     speciesDict[currentSpecies]["train"].append(line)
     return speciesDict
 
 def writeClassnames(trainDir, valDir, speciesList):
-    """Create classnames.txt in train and val folders containing species names."""
     classnames = [name for name, _ in speciesList]
     for folder in [trainDir, valDir]:
         with open(os.path.join(folder, "classnames.txt"), "w") as f:
             f.write("\n".join(classnames))
     print("classnames.txt created in train and val folders.")
 
-
-# ==== MAIN RECONSTRUCTION ====
 def reconstructDatabaseWithSplit():
     os.makedirs(TRAIN_DIR, exist_ok=True)
     os.makedirs(VAL_DIR, exist_ok=True)
@@ -105,12 +94,13 @@ def reconstructDatabaseWithSplit():
 
         print(f"Reconstructing {speciesName}: {len(trainUrls)} train, {len(valUrls)} val")
 
-        downloadImagesForFolder(speciesName, trainUrls, os.path.join(TRAIN_DIR, speciesName), THREADS_PER_SPECIES)
-        downloadImagesForFolder(speciesName, valUrls, os.path.join(VAL_DIR, speciesName), THREADS_PER_SPECIES)
+        downloadImagesForFolder(speciesName, trainUrls, os.path.join(TRAIN_DIR, speciesName))
+        downloadImagesForFolder(speciesName, valUrls, os.path.join(VAL_DIR, speciesName))
 
     print("Database reconstruction with train/val split complete.")
 
-
+# ==== ENTRY POINT ====
 if __name__ == "__main__":
     reconstructDatabaseWithSplit()
     writeClassnames(TRAIN_DIR, VAL_DIR, speciesList)
+    GLOBAL_EXECUTOR.shutdown(wait=True)

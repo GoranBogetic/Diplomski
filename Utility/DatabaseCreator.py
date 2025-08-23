@@ -3,10 +3,9 @@ import requests
 import random
 import shutil
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from SpeciesList import speciesList
 
-# ==== CONFIGURATION ====
 BASE_DIR = os.path.dirname(__file__)
 DATABASE_DIR = os.path.join(BASE_DIR, '../Database')
 SOURCES_DIR = os.path.join(BASE_DIR, '../Sources')
@@ -14,7 +13,7 @@ SOURCES_DIR = os.path.join(BASE_DIR, '../Sources')
 TRAIN_DIR = os.path.join(DATABASE_DIR, 'train')
 VAL_DIR = os.path.join(DATABASE_DIR, 'val')
 
-LICENSES = ["cc0", "cc-by"]   # only fetch these from API
+LICENSES = ["cc0", "cc-by"]   # only fetch images with these licenses from API
 PER_PAGE = 200
 MAX_IMAGES_PER_SPECIES = 800
 MAX_PAGES = 20
@@ -24,12 +23,10 @@ GLOBAL_THREADS = 160  # global thread pool size
 URLS_LOG_PATH = os.path.join(SOURCES_DIR, "ImageSources.txt")
 ATTRIBUTIONS_PATH = os.path.join(SOURCES_DIR, "ImageAttributions.txt")
 
-# ==== GLOBAL EXECUTOR ====
 GLOBAL_EXECUTOR = ThreadPoolExecutor(max_workers=GLOBAL_THREADS)
 
-# ==== API HELPER ====
+# Fetch one page of observations from iNaturalist API
 def fetchFromPage(taxonId, licenses, page, perPage):
-    """Fetch one page of observations from iNaturalist API."""
     url = "https://api.inaturalist.org/v1/observations"
     params = {
         "taxon_id": taxonId,
@@ -41,9 +38,7 @@ def fetchFromPage(taxonId, licenses, page, perPage):
     response.raise_for_status()
     return response.json()
 
-# ==== DOWNLOAD HELPER ====
 def downloadImage(url, savePath):
-    """Download an image from a URL and save it."""
     try:
         imgData = requests.get(url, timeout=15).content
         with open(savePath, 'wb') as handler:
@@ -53,9 +48,8 @@ def downloadImage(url, savePath):
         print(f"Failed to save {url}: {e}")
         return False
 
-# ==== SPECIES PROCESSING ====
+# Download all images for one species and log attributions
 def processSpecies(species, attributionFile):
-    """Download all images for one species and log attributions while downloading."""
     speciesName, taxonId = species
     speciesFolder = os.path.join(TRAIN_DIR, speciesName)
     os.makedirs(speciesFolder, exist_ok=True)
@@ -104,22 +98,21 @@ def processSpecies(species, attributionFile):
                     future = GLOBAL_EXECUTOR.submit(downloadImage, photoUrl, filePath)
                     downloadTasks.append((future, photoUrl, filePath))
 
-        # collect results
+        # Collect results
         for future, url, filePath in downloadTasks:
             if future.result():
                 allDownloadedFiles.append((url, filePath))
                 count += 1
 
-        # polite pause between API page requests
+        # Pause between API page requests
         time.sleep(0.1)
 
     attributionFile.write("\n")
     print(f"Finished downloading {count} images for {speciesName}.")
     return allDownloadedFiles
 
-# ==== TRAIN/VAL SPLIT ====
+# Split images into train and validation sets
 def splitTrainingAndValidation(speciesFiles):
-    """Split images into train and val folders and return mapping for logging."""
     splitMapping = {}  # {speciesName: {"train": [urls], "val": [urls]}}
 
     for speciesName, files in speciesFiles.items():
@@ -150,9 +143,8 @@ def splitTrainingAndValidation(speciesFiles):
 
     return splitMapping
 
-# ==== LOGGING ====
+# Write all URLs into ImageSources.txt with train/val prefixes
 def logUrls(splitMapping, logPath):
-    """Write all URLs into ImageSources.txt with train/val prefixes."""
     with open(logPath, "a") as f:
         for speciesName, sets in splitMapping.items():
             f.write(f"=== {speciesName} ===\n")
@@ -162,16 +154,14 @@ def logUrls(splitMapping, logPath):
                 f.write(f"val: {url}\n")
             f.write("\n")
 
-# ==== CLASSNAMES FILE CREATOR ====
+# Create classnames.txt in train and val folders containing species names
 def writeClassnames(trainDir, valDir, speciesList):
-    """Create classnames.txt in train and val folders containing species names."""
     classnames = [name for name, _ in speciesList]
     for folder in [trainDir, valDir]:
         with open(os.path.join(folder, "classnames.txt"), "w") as f:
             f.write("\n".join(classnames))
     print("classnames.txt created in train and val folders.")
 
-# ==== MAIN ====
 if __name__ == "__main__":
     os.makedirs(TRAIN_DIR, exist_ok=True)
     os.makedirs(VAL_DIR, exist_ok=True)
@@ -193,14 +183,11 @@ if __name__ == "__main__":
 
     print("Download phase complete.")
 
-    # Split into train/val and log
     splitMapping = splitTrainingAndValidation(speciesFiles)
     logUrls(splitMapping, URLS_LOG_PATH)
 
-    # Write classnames.txt files
     writeClassnames(TRAIN_DIR, VAL_DIR, speciesList)
 
     print("All processing finished.")
 
-    # shutdown global executor
     GLOBAL_EXECUTOR.shutdown(wait=True)
