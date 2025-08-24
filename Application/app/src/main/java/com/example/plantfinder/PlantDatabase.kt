@@ -9,760 +9,522 @@ data class PlantData(
 )
 
 val plantInfo = mapOf(
-    "aleppopine" to PlantData(
+    "agaveamericana" to PlantData(
+        englishName = "Agave Americana",
+        croatianName = "Američka agava",
+        latinName = "Agave americana",
+        description = "Large, evergreen succulent forming a rosette of thick, spiny leaves; monocarpic. Cultivated for ornament, fiber and sweet sap; flowers and stalk traditionally roasted.",
+        isEdible = true
+    ),
+    "allepopine" to PlantData(
         englishName = "Aleppo Pine",
-        croatianName = "Alepski Bor",
+        croatianName = "Alepski bor",
         latinName = "Pinus halepensis",
-        description = "A Mediterranean pine tree with slender branches and long needles. Often used in reforestation and ornamental planting.",
+        description = "Mediterranean pine with long needles and irregular crown; used for reforestation and as an ornamental. Seeds small; tree primarily non-food.",
         isEdible = false
     ),
-    "europeanash" to PlantData(
-        englishName = "European Ash",
-        croatianName = "Jasen",
-        latinName = "Fraxinus excelsior",
-        description = "A tall deciduous tree with compound leaves and winged seeds. Wood is strong and commonly used for furniture.",
+    "almond" to PlantData(
+        englishName = "Almond",
+        croatianName = "Badem",
+        latinName = "Prunus dulcis",
+        description = "Small tree cultivated for edible nuts (sweet cultivars); blossoms early in spring and prefers warm, dry climates.",
+        isEdible = true
+    ),
+    "alpinerose" to PlantData(
+        englishName = "Alpine Rose",
+        croatianName = "Alpska ruža (rododendron)",
+        latinName = "Rhododendron ferrugineum",
+        description = "Evergreen alpine shrub with pink bell-shaped flowers; leaves contain grayanotoxins and are poisonous if ingested.",
         isEdible = false
     ),
-    "aloevera" to PlantData(
-        englishName = "Aloe Vera",
-        croatianName = "Aloe Vera",
-        latinName = "Aloe vera",
-        description = "A succulent plant with thick, fleshy leaves containing gel. Widely used for skin care and minor burns.",
+    "applemint" to PlantData(
+        englishName = "Apple Mint",
+        croatianName = "Jabučna metvica",
+        latinName = "Mentha suaveolens",
+        description = "Aromatic mint with softly hairy leaves and a sweet, fruity scent; grown for teas, desserts and garnishes.",
         isEdible = true
     ),
-    "banana" to PlantData(
-        englishName = "Banana",
-        croatianName = "Banana",
-        latinName = "Musa spp.",
-        description = "A tropical herbaceous plant producing elongated, sweet fruits. Staple fruit in many regions.",
-        isEdible = true
-    ),
-    "baylaurel" to PlantData(
-        englishName = "Bay Laurel",
-        croatianName = "Lovor",
-        latinName = "Laurus nobilis",
-        description = "An aromatic evergreen shrub with glossy leaves. Leaves are commonly used in cooking.",
-        isEdible = true
-    ),
-    "bilimbi" to PlantData(
-        englishName = "Bilimbi",
-        croatianName = "Bilimbi",
-        latinName = "Averrhoa bilimbi",
-        description = "A small tropical tree producing sour, cucumber-shaped fruits. Often used in pickles and preserves.",
-        isEdible = true
-    ),
-    "blackpine" to PlantData(
-        englishName = "Black Pine",
-        croatianName = "Crni Bor",
-        latinName = "Pinus nigra",
-        description = "A large pine tree with dark bark and long needles. Popular in parks and forestry.",
+    "beautifulflax" to PlantData(
+        englishName = "Beautiful Flax",
+        croatianName = "Lijepi lan",
+        latinName = "Linum narbonense",
+        description = "Perennial flax with showy blue flowers; ornamental species related to cultivated flax; not typically used as food.",
         isEdible = false
     ),
-    "blacklocust" to PlantData(
-        englishName = "Black Locust",
-        croatianName = "Crni Bagrem",
-        latinName = "Robinia pseudoacacia",
-        description = "A hardy deciduous tree with fragrant flowers. Flowers are edible; other parts are toxic.",
-        isEdible = true
-    ),
-    "bladdersenna" to PlantData(
-        englishName = "Bladder Senna",
-        croatianName = "Balonasta Sjena",
-        latinName = "Colutea arborescens",
-        description = "A shrub with yellow flowers and inflated seed pods. Mostly ornamental, not commonly eaten.",
+    "blackbogrush" to PlantData(
+        englishName = "Black Bog-rush",
+        croatianName = "Crni šaš",
+        latinName = "Schoenus nigricans",
+        description = "Clump-forming sedge of fens and alkaline marshes; dark inflorescences; ecological indicator, not used as food.",
         isEdible = false
     ),
-    "bougainvillea" to PlantData(
-        englishName = "Bougainvillea",
-        croatianName = "Bugenvilija",
-        latinName = "Bougainvillea spp.",
-        description = "A climbing plant with colorful bracts surrounding small flowers. Ornamental, not edible.",
+    "bristelberry" to PlantData(
+        englishName = "Bristly Blackberry",
+        croatianName = "Kupina bodljikava",
+        latinName = "Rubus setosus",
+        description = "Thorny bramble with edible aggregate fruits; identification within the Rubus genus is complex and regional.",
+        isEdible = true
+    ),
+    "buckshornplantain" to PlantData(
+        englishName = "Buck's-horn Plantain",
+        croatianName = "Rogati trputac",
+        latinName = "Plantago coronopus",
+        description = "Low rosette herb of coasts and sandy soils; deeply lobed leaves eaten young in salads; mildly salty taste.",
+        isEdible = true
+    ),
+    "cantabricanmorningglory" to PlantData(
+        englishName = "Cantabrican Morning Glory",
+        croatianName = "Kantabrijski slak",
+        latinName = "Convolvulus cantabrica",
+        description = "Low, silvery perennial bindweed with funnel flowers; mostly ornamental/wild; not used as food.",
         isEdible = false
     ),
-    "canaryislanddatepalm" to PlantData(
-        englishName = "Canary Island Date Palm",
-        croatianName = "Kanarska Datulja",
-        latinName = "Phoenix canariensis",
-        description = "A large palm with long arching fronds. Cultivated for ornamental use; fruits are edible but not common.",
-        isEdible = true
-    ),
-    "Cantaloupe" to PlantData(
-        englishName = "Cantaloupe",
-        croatianName = "Kantalupa",
-        latinName = "Cucumis melo",
-        description = "A melon with sweet orange flesh and netted skin. Widely eaten fresh as fruit.",
-        isEdible = true
-    ),
-    "carobtree" to PlantData(
-        englishName = "Carob Tree",
-        croatianName = "Rovnica",
+    "carob" to PlantData(
+        englishName = "Carob",
+        croatianName = "Rogač",
         latinName = "Ceratonia siliqua",
-        description = "An evergreen tree producing pods used as a chocolate substitute. Pods are edible and sweet.",
+        description = "Evergreen Mediterranean tree; pods ground into sweet flour used as cocoa substitute; seeds historically used as carats.",
         isEdible = true
     ),
-    "cassava" to PlantData(
-        englishName = "Cassava",
-        croatianName = "Kassava",
-        latinName = "Manihot esculenta",
-        description = "A tropical root crop with starchy tubers. Must be cooked to remove toxins before eating.",
+    "catnip" to PlantData(
+        englishName = "Catnip",
+        croatianName = "Mačja metvica",
+        latinName = "Nepeta cataria",
+        description = "Mint family herb valued for calming teas and for its effect on cats; leaves and flowers aromatic and usable fresh or dried.",
         isEdible = true
     ),
-    "cherrytree" to PlantData(
-        englishName = "Cherry Tree",
-        croatianName = "Trešnja",
-        latinName = "Prunus avium",
-        description = "A deciduous tree producing sweet red fruits. Fruits are eaten fresh or used in desserts.",
-        isEdible = true
-    ),
-    "chestnuttree" to PlantData(
-        englishName = "Chestnut Tree",
-        croatianName = "Kesten",
-        latinName = "Castanea sativa",
-        description = "A large deciduous tree with spiny fruits containing nuts. Nuts are edible when cooked.",
-        isEdible = true
-    ),
-    "coconut" to PlantData(
-        englishName = "Coconut",
-        croatianName = "Kokos",
-        latinName = "Cocos nucifera",
-        description = "A tropical palm producing large fibrous fruits. The water and flesh are edible and widely consumed.",
-        isEdible = true
-    ),
-    "commonfigtree" to PlantData(
-        englishName = "Common Fig Tree",
-        croatianName = "Figa",
-        latinName = "Ficus carica",
-        description = "A small deciduous tree producing sweet figs. Fruits are eaten fresh or dried.",
-        isEdible = true
-    ),
-    "commonpoppy" to PlantData(
-        englishName = "Common Poppy",
-        croatianName = "Mak",
-        latinName = "Papaver rhoeas",
-        description = "A delicate annual flower with red petals. Seeds are edible; plant is mainly ornamental.",
-        isEdible = true
-    ),
-    "commonsage" to PlantData(
-        englishName = "Common Sage",
-        croatianName = "Kadulja",
-        latinName = "Salvia officinalis",
-        description = "A perennial herb with aromatic gray-green leaves. Leaves are edible and used in cooking.",
-        isEdible = true
-    ),
-    "corn" to PlantData(
-        englishName = "Corn",
-        croatianName = "Kukuruz",
-        latinName = "Zea mays",
-        description = "A tall cereal plant producing ears with kernels. Kernels are widely eaten fresh, cooked, or ground into flour.",
-        isEdible = true
-    ),
-    "coriander" to PlantData(
-        englishName = "Coriander",
-        croatianName = "Korijander",
-        latinName = "Coriandrum sativum",
-        description = "An annual herb with aromatic leaves and seeds. Leaves and seeds are edible and used in cooking.",
-        isEdible = true
-    ),
-    "cucumber" to PlantData(
-        englishName = "Cucumber",
-        croatianName = "Krastavac",
-        latinName = "Cucumis sativus",
-        description = "A climbing plant producing long green fruits. Fruits are edible and commonly eaten raw.",
-        isEdible = true
-    ),
-    "curcuma" to PlantData(
-        englishName = "Turmeric",
-        croatianName = "Kurkuma",
-        latinName = "Curcuma longa",
-        description = "A tropical plant with aromatic rhizomes. Rhizomes are edible and used as a spice.",
-        isEdible = true
-    ),
-    "cypresstree" to PlantData(
-        englishName = "Cypress Tree",
-        croatianName = "Čempres",
-        latinName = "Cupressus spp.",
-        description = "An evergreen tree with conical shape and scale-like leaves. Primarily ornamental.",
+    "cherrylaurel" to PlantData(
+        englishName = "Cherry Laurel",
+        croatianName = "Lovorvišnja",
+        latinName = "Prunus laurocerasus",
+        description = "Evergreen hedge shrub with glossy leaves; contains cyanogenic compounds; fruit and foliage considered poisonous.",
         isEdible = false
     ),
-    "crowndaisy" to PlantData(
-        englishName = "Crown Daisy",
-        croatianName = "Krizantema",
-        latinName = "Glebionis coronaria",
-        description = "An annual plant with yellow daisy-like flowers. Leaves are edible and used in salads.",
+    "chimneybellflower" to PlantData(
+        englishName = "Chimney Bellflower",
+        croatianName = "Piramidalna zvončika",
+        latinName = "Campanula pyramidalis",
+        description = "Tall biennial/perennial with pyramid-shaped clusters of blue bellflowers; many Campanula species have edible young leaves/flowers.",
         isEdible = true
     ),
-    "calmatianbellflower" to PlantData(
-        englishName = "Dalmatian Bellflower",
-        croatianName = "Dalmatinski Zvjezdan",
-        latinName = "Campanula portenschlagiana",
-        description = "A low-growing perennial with violet bell-shaped flowers. Mainly ornamental.",
+    "commonbuckthorn" to PlantData(
+        englishName = "Common Buckthorn",
+        croatianName = "Obična krkavina",
+        latinName = "Rhamnus cathartica",
+        description = "Spiny shrub with purgative, poisonous berries; invasive in many regions; not for consumption.",
         isEdible = false
     ),
-    "daphne" to PlantData(
-        englishName = "Daphne",
-        croatianName = "Dafne",
-        latinName = "Daphne spp.",
-        description = "A small shrub with fragrant flowers. All parts are toxic, ornamental only.",
+    "commoncentaury" to PlantData(
+        englishName = "Common Centaury",
+        croatianName = "Obična kičica",
+        latinName = "Centaurium erythraea",
+        description = "Small biennial with pink starry flowers; intensely bitter medicinal herb used for digestive bitters rather than food.",
         isEdible = false
     ),
-    "elderberry" to PlantData(
-        englishName = "Elderberry",
-        croatianName = "Bazga",
-        latinName = "Sambucus nigra",
-        description = "A shrub or small tree producing dark berries. Berries are edible when cooked.",
+    "commonhazel" to PlantData(
+        englishName = "Common Hazel",
+        croatianName = "Lijeska",
+        latinName = "Corylus avellana",
+        description = "Multi-stemmed shrub/tree producing edible hazelnuts; important wildlife and agroforestry species.",
         isEdible = true
     ),
-    "eggplant" to PlantData(
-        englishName = "Eggplant",
-        croatianName = "Patlidžan",
-        latinName = "Solanum melongena",
-        description = "A perennial plant producing purple fruits. Fruits are edible and widely used in cooking.",
-        isEdible = true
-    ),
-    "elmtree" to PlantData(
-        englishName = "Elm Tree",
-        croatianName = "Brijest",
-        latinName = "Ulmus spp.",
-        description = "A large deciduous tree with serrated leaves. Primarily used for shade and timber.",
-        isEdible = false
-    ),
-    "fennel" to PlantData(
-        englishName = "Fennel",
-        croatianName = "Komorač",
-        latinName = "Foeniculum vulgare",
-        description = "A perennial herb with feathery leaves and bulbous base. Bulb, leaves, and seeds are edible.",
-        isEdible = true
-    ),
-    "garlic" to PlantData(
-        englishName = "Garlic",
-        croatianName = "Češnjak",
-        latinName = "Allium sativum",
-        description = "A bulbous plant with strong-smelling cloves. Widely used as a culinary and medicinal ingredient.",
-        isEdible = true
-    ),
-    "gardenia" to PlantData(
-        englishName = "Gardenia",
-        croatianName = "Gardenija",
-        latinName = "Gardenia jasminoides",
-        description = "An evergreen shrub with fragrant white flowers. Ornamental, not edible.",
-        isEdible = false
-    ),
-    "geranium" to PlantData(
-        englishName = "Geranium",
-        croatianName = "Pelargonija",
-        latinName = "Pelargonium spp.",
-        description = "A flowering plant with rounded leaves and colorful blooms. Primarily ornamental.",
-        isEdible = false
-    ),
-    "giantfennel" to PlantData(
-        englishName = "Giant Fennel",
-        croatianName = "Divlji Komorač",
-        latinName = "Ferula communis",
-        description = "A tall perennial with large umbels of yellow flowers. Not commonly eaten, sometimes medicinal.",
-        isEdible = false
-    ),
-    "goldenrod" to PlantData(
-        englishName = "Golden Rod",
-        croatianName = "Zlatnica",
-        latinName = "Solidago spp.",
-        description = "A perennial with bright yellow flower spikes. Mainly ornamental or medicinal.",
-        isEdible = false
-    ),
-    "fuava" to PlantData(
-        englishName = "Guava",
-        croatianName = "Guava",
-        latinName = "Psidium guajava",
-        description = "A tropical tree producing sweet, aromatic fruits. Fruits are edible and nutritious.",
-        isEdible = true
-    ),
-    "hackberry" to PlantData(
-        englishName = "Hackberry",
-        croatianName = "Brest",
-        latinName = "Celtis spp.",
-        description = "A deciduous tree with small sweet fruits. Fruits are edible but rarely eaten.",
-        isEdible = true
-    ),
-    "hawthorn" to PlantData(
-        englishName = "Hawthorn",
-        croatianName = "Glog",
-        latinName = "Crataegus spp.",
-        description = "A shrub or small tree with white or pink flowers. Fruits are edible and used in jams or teas.",
-        isEdible = true
-    ),
-    "herbrobert" to PlantData(
-        englishName = "Herb Robert",
-        croatianName = "Gorušica",
-        latinName = "Geranium robertianum",
-        description = "A small herb with pink flowers. Edible and used in folk medicine.",
-        isEdible = true
-    ),
-    "holmOak" to PlantData(
-        englishName = "Holm Oak",
-        croatianName = "Hrast Medunac",
-        latinName = "Quercus ilex",
-        description = "An evergreen oak with leathery leaves. Acorns are edible when processed.",
-        isEdible = true
-    ),
-    "hyssop" to PlantData(
-        englishName = "Hyssop",
-        croatianName = "Hisop",
-        latinName = "Hyssopus officinalis",
-        description = "A small aromatic herb with blue flowers. Leaves and flowers are edible and used in cooking.",
-        isEdible = true
-    ),
-    "italianbuckthorn" to PlantData(
-        englishName = "Italian Buckthorn",
-        croatianName = "Talijanski Ruj",
-        latinName = "Rhamnus alaternus",
-        description = "An evergreen shrub with dark berries. Mostly ornamental; berries not commonly eaten.",
-        isEdible = false
-    ),
-    "juniper" to PlantData(
-        englishName = "Juniper",
-        croatianName = "Borovica",
+    "commonjuniper" to PlantData(
+        englishName = "Common Juniper",
+        croatianName = "Kleka",
         latinName = "Juniperus communis",
-        description = "A coniferous shrub or tree with needle-like leaves. Berries are edible and used as spice.",
+        description = "Coniferous shrub/tree with berry-like cones used to flavor dishes and gin; resinous, aromatic taste.",
         isEdible = true
     ),
-    "kermesoak" to PlantData(
-        englishName = "Kermes Oak",
-        croatianName = "Crni Hrast",
-        latinName = "Quercus coccifera",
-        description = "A small evergreen oak with spiny leaves. Acorns are edible but bitter.",
-        isEdible = true
-    ),
-    "lavender" to PlantData(
-        englishName = "Lavender",
+    "commonlavender" to PlantData(
+        englishName = "Common Lavender",
         croatianName = "Lavanda",
         latinName = "Lavandula angustifolia",
-        description = "A fragrant herb with purple flowers. Flowers are edible and used in culinary and tea.",
+        description = "Fragrant subshrub with narrow leaves and purple flower spikes; culinary lavender used sparingly in sweets and teas.",
         isEdible = true
     ),
-    "lemontree" to PlantData(
-        englishName = "Lemon Tree",
-        croatianName = "Limun",
-        latinName = "Citrus limon",
-        description = "A small evergreen tree producing sour yellow fruits. Fruits are edible and widely used in cooking.",
+    "commonorache" to PlantData(
+        englishName = "Common Orache",
+        croatianName = "Obična loboda",
+        latinName = "Atriplex patula",
+        description = "Goosefoot relative with arrow-shaped leaves; young leaves eaten like spinach; tolerates saline soils.",
         isEdible = true
     ),
-    "lilac" to PlantData(
-        englishName = "Lilac",
-        croatianName = "Lila",
-        latinName = "Syringa vulgaris",
-        description = "A deciduous shrub with fragrant purple or white flowers. Mainly ornamental, not eaten.",
+    "commonprivet" to PlantData(
+        englishName = "Common Privet",
+        croatianName = "Kalina (ligustrum)",
+        latinName = "Ligustrum vulgare",
+        description = "Deciduous to semi-evergreen hedge shrub with black berries; fruits and leaves are poisonous to humans.",
         isEdible = false
     ),
-    "mango" to PlantData(
-        englishName = "Mango",
-        croatianName = "Mango",
-        latinName = "Mangifera indica",
-        description = "A tropical tree producing sweet orange fruits. Fruits are edible and popular worldwide.",
+    "commonsealavender" to PlantData(
+        englishName = "Common Sea Lavender",
+        croatianName = "Morska lavanda",
+        latinName = "Limonium vulgare",
+        description = "Saltmarsh perennial with papery lavender-colored flowers; ornamental and for dried arrangements; not used as food.",
+        isEdible = false
+    ),
+    "corneliancherry" to PlantData(
+        englishName = "Cornelian Cherry",
+        croatianName = "Dren",
+        latinName = "Cornus mas",
+        description = "Large shrub/small tree with early yellow flowers and tart red drupes used for syrups, jams and liqueurs.",
         isEdible = true
     ),
-    "mastictree" to PlantData(
-        englishName = "Mastic Tree",
-        croatianName = "Mastik",
+    "dogrose" to PlantData(
+        englishName = "Dog Rose",
+        croatianName = "Pasja ruža (šipak)",
+        latinName = "Rosa canina",
+        description = "Climbing wild rose with hooked prickles; vitamin C–rich hips used for teas, syrups and jams (remove irritating hairs).",
+        isEdible = true
+    ),
+    "dalmationpyrethrum" to PlantData(
+        englishName = "Dalmatian Pyrethrum",
+        croatianName = "Dalmatinski buhač",
+        latinName = "Tanacetum cinerariifolium",
+        description = "Daisy producing natural insecticidal pyrethrins; used as botanical pesticide; not for culinary use.",
+        isEdible = false
+    ),
+    "englishoak" to PlantData(
+        englishName = "English Oak",
+        croatianName = "Hrast lužnjak",
+        latinName = "Quercus robur",
+        description = "Large deciduous oak; acorns high in tannins but edible after leaching/processing; important timber tree.",
+        isEdible = true
+    ),
+    "europeanbarberry" to PlantData(
+        englishName = "European Barberry",
+        croatianName = "Obična žutika",
+        latinName = "Berberis vulgaris",
+        description = "Spiny shrub with sour red berries used in jams and Middle Eastern cuisine; leaves and bark are bitter/medicinal.",
+        isEdible = true
+    ),
+    "europeanbeech" to PlantData(
+        englishName = "European Beech",
+        croatianName = "Obična bukva",
+        latinName = "Fagus sylvatica",
+        description = "Majestic deciduous tree; triangular beechnuts edible roasted in small amounts; raw nuts mildly toxic.",
+        isEdible = true
+    ),
+    "europeanblackelderberry" to PlantData(
+        englishName = "European Black Elderberry",
+        croatianName = "Crna bazga",
+        latinName = "Sambucus nigra",
+        description = "Shrub with umbels of white flowers and black berries; flowers and cooked ripe berries used for syrups and desserts.",
+        isEdible = true
+    ),
+    "europeanholly" to PlantData(
+        englishName = "European Holly",
+        croatianName = "Božikovina",
+        latinName = "Ilex aquifolium",
+        description = "Evergreen with spiny leaves and red berries; berries are poisonous and not for consumption.",
+        isEdible = false
+    ),
+    "europeanhornbeam" to PlantData(
+        englishName = "European Hornbeam",
+        croatianName = "Obični grab",
+        latinName = "Carpinus betulus",
+        description = "Hardwood tree of mixed forests; valued for tough timber; not used as a food plant.",
+        isEdible = false
+    ),
+    "europeanmountainash" to PlantData(
+        englishName = "European Mountain Ash",
+        croatianName = "Jarebika",
+        latinName = "Sorbus aucuparia",
+        description = "Small tree with clusters of orange-red berries; very tart/astringent raw; edible after frost/cooking (jellies, wines).",
+        isEdible = true
+    ),
+    "fig" to PlantData(
+        englishName = "Fig",
+        croatianName = "Smokva",
+        latinName = "Ficus carica",
+        description = "Mediterranean fruit tree bearing sweet, soft figs; both fresh and dried are widely consumed.",
+        isEdible = true
+    ),
+    "fleshyrussianthistle" to PlantData(
+        englishName = "Fleshy Russian Thistle",
+        croatianName = "Sočna solnjača",
+        latinName = "Salsola soda",
+        description = "Halophytic annual (agretti) cultivated as a vegetable in Italy; tender shoots eaten sautéed or blanched.",
+        isEdible = true
+    ),
+    "gardensage" to PlantData(
+        englishName = "Garden Sage",
+        croatianName = "Kadulja",
+        latinName = "Salvia officinalis",
+        description = "Woody perennial herb with gray leaves; classic culinary seasoning and medicinal plant native to the Adriatic coasts.",
+        isEdible = true
+    ),
+    "goatwillow" to PlantData(
+        englishName = "Goat Willow",
+        croatianName = "Iva (vrba iva)",
+        latinName = "Salix caprea",
+        description = "Early-flowering willow with catkins; historically medicinal (salicin); not a regular food plant.",
+        isEdible = false
+    ),
+    "goldensamphire" to PlantData(
+        englishName = "Golden Samphire",
+        croatianName = "Zlatna obalarka",
+        latinName = "Limbarda crithmoides",
+        description = "Coastal perennial with fleshy leaves historically pickled or eaten as a seaside vegetable; aromatic taste.",
+        isEdible = true
+    ),
+    "greatstingingnettle" to PlantData(
+        englishName = "Great Stinging Nettle",
+        croatianName = "Velika kopriva",
+        latinName = "Urtica dioica",
+        description = "Perennial with stinging hairs; young shoots and leaves edible when cooked; used in soups, pies and teas.",
+        isEdible = true
+    ),
+    "holmoak" to PlantData(
+        englishName = "Holm Oak",
+        croatianName = "Crnika",
+        latinName = "Quercus ilex",
+        description = "Evergreen Mediterranean oak; sweet varieties of acorns traditionally eaten or fed to livestock after processing.",
+        isEdible = true
+    ),
+    "indianfigopuntia" to PlantData(
+        englishName = "Indian Fig Opuntia",
+        croatianName = "Indijska smokva (opuncija)",
+        latinName = "Opuntia ficus-indica",
+        description = "Cactus cultivated for edible fruits (tunas) and pads (nopales); drought tolerant and widely naturalized.",
+        isEdible = true
+    ),
+    "iris" to PlantData(
+        englishName = "Iris",
+        croatianName = "Perunika (iris)",
+        latinName = "Iris germanica",
+        description = "Showy rhizomatous perennial grown for flowers; many Iris species are toxic and not used as food.",
+        isEdible = false
+    ),
+    "italianarum" to PlantData(
+        englishName = "Italian Arum",
+        croatianName = "Talijanski kozlac",
+        latinName = "Arum italicum",
+        description = "Shade-loving aroid with arrow leaves and red berries; contains calcium oxalate crystals; poisonous if ingested.",
+        isEdible = false
+    ),
+    "jerisalemlampwick" to PlantData(
+        englishName = "Jerusalem Lampwick (Jerusalem Sage)",
+        croatianName = "Jeruzalemska kadulja",
+        latinName = "Phlomis fruticosa",
+        description = "Woolly-leaved Mediterranean shrub with yellow whorled flowers; aromatic ornamental; not a food plant.",
+        isEdible = false
+    ),
+    "jerusalemthorn" to PlantData(
+        englishName = "Jerusalem Thorn",
+        croatianName = "Jeruzalemski trn",
+        latinName = "Parkinsonia aculeata",
+        description = "Spiny, drought-tolerant legume tree with green photosynthetic twigs; grown ornamentally; not used as food.",
+        isEdible = false
+    ),
+    "jointpine" to PlantData(
+        englishName = "Joint-pine",
+        croatianName = "Efedra",
+        latinName = "Ephedra fragilis",
+        description = "Shrubby gymnosperm of dry coasts; jointed green stems; historically medicinal (ephedrine); not a food plant.",
+        isEdible = false
+    ),
+    "lilacchastetree" to PlantData(
+        englishName = "Lilac Chaste Tree",
+        croatianName = "Fratarski papar",
+        latinName = "Vitex agnus-castus",
+        description = "Aromatic shrub of shores and streams; peppery seeds used as spice substitute; leaves/flowers aromatic.",
+        isEdible = true
+    ),
+    "longbractedsedge" to PlantData(
+        englishName = "Long-bracted Sedge",
+        croatianName = "Dugoklasasti šaš",
+        latinName = "Carex distachya",
+        description = "Tufted sedge of dry, sandy places; valued ecologically; not used as food.",
+        isEdible = false
+    ),
+    "mastic" to PlantData(
+        englishName = "Mastic",
+        croatianName = "Smrdljika (mastika)",
         latinName = "Pistacia lentiscus",
-        description = "An evergreen shrub with aromatic resin. Leaves and resin are edible; fruits are small.",
+        description = "Evergreen shrub/tree producing aromatic resin (mastic) chewed and used to flavor sweets and liqueurs.",
         isEdible = true
     ),
     "mediterraneancypress" to PlantData(
         englishName = "Mediterranean Cypress",
-        croatianName = "Sredozemni Čempres",
+        croatianName = "Čempres",
         latinName = "Cupressus sempervirens",
-        description = "A tall, narrow evergreen tree. Mainly ornamental, not eaten.",
+        description = "Tall, columnar conifer iconic of Mediterranean landscapes; ornamental and timber; not a food plant.",
         isEdible = false
     ),
-    "mexicanfanpalm" to PlantData(
-        englishName = "Mexican Fan Palm",
-        croatianName = "Meksička Lepezasta Palma",
-        latinName = "Washingtonia robusta",
-        description = "A fast-growing palm with fan-shaped leaves. Ornamental, fruits not commonly eaten.",
-        isEdible = false
-    ),
-    "mockprivet" to PlantData(
-        englishName = "Mock Privet",
-        croatianName = "Lažni Liguster",
-        latinName = "Phillyrea spp.",
-        description = "An evergreen shrub with leathery leaves. Mostly ornamental, not edible.",
+    "mezeron" to PlantData(
+        englishName = "Mezereon",
+        croatianName = "Likovac",
+        latinName = "Daphne mezereum",
+        description = "Fragrant early-flowering shrub with red berries; extremely poisonous; never eat.",
         isEdible = false
     ),
     "myrtle" to PlantData(
         englishName = "Myrtle",
-        croatianName = "Mirt",
+        croatianName = "Mirta",
         latinName = "Myrtus communis",
-        description = "An evergreen shrub with aromatic leaves and berries. Leaves and berries are edible.",
+        description = "Evergreen shrub with aromatic leaves and blue-black berries; used to flavor meats and liqueurs (mirto).",
         isEdible = true
     ),
-    "narcissus" to PlantData(
-        englishName = "Narcissus",
-        croatianName = "Narcis",
-        latinName = "Narcissus spp.",
-        description = "A bulbous flowering plant with showy flowers. Ornamental, not edible.",
-        isEdible = false
-    ),
-    "olivetree" to PlantData(
-        englishName = "Olive Tree",
+    "olive" to PlantData(
+        englishName = "Olive",
         croatianName = "Maslina",
         latinName = "Olea europaea",
-        description = "An evergreen tree producing olives. Olives are edible and used for oil and consumption.",
+        description = "Long-lived evergreen tree cultivated for edible fruits (after curing) and oil; hallmark of Mediterranean agriculture.",
         isEdible = true
     ),
-    "orientalplane" to PlantData(
-        englishName = "Oriental Plane",
-        croatianName = "Planinski Javor",
-        latinName = "Platanus orientalis",
-        description = "A large deciduous tree with broad leaves. Mainly ornamental, not edible.",
+    "pomegranate" to PlantData(
+        englishName = "Pomegranate",
+        croatianName = "Nar (šipak)",
+        latinName = "Punica granatum",
+        description = "Deciduous shrub/tree with leathery-skinned fruits full of juicy arils; eaten fresh and juiced.",
+        isEdible = true
+    ),
+    "redraspberry" to PlantData(
+        englishName = "Red Raspberry",
+        croatianName = "Malina",
+        latinName = "Rubus idaeus",
+        description = "Perennial cane fruit producing aromatic red berries; widely cultivated and foraged in cooler regions.",
+        isEdible = true
+    ),
+    "savinjuniper" to PlantData(
+        englishName = "Savin Juniper",
+        croatianName = "Sabina kleka",
+        latinName = "Juniperus sabina",
+        description = "Low, spreading juniper; foliage and berries are toxic (savin oil); not for culinary use.",
         isEdible = false
     ),
-    "oleander" to PlantData(
-        englishName = "Oleander",
-        croatianName = "Oleandar",
-        latinName = "Nerium oleander",
-        description = "An evergreen shrub with long, narrow leaves and clusters of brightly colored flowers, often pink, white, or red. It is drought-tolerant and commonly grown as an ornamental in warm climates, but all parts of the plant are highly toxic if ingested.",
+    "seabeet" to PlantData(
+        englishName = "Sea Beet",
+        croatianName = "Obalna blitva",
+        latinName = "Beta vulgaris subsp. maritima",
+        description = "Wild ancestor of beet and chard; young leaves edible like spinach; thrives in coastal habitats.",
+        isEdible = true
+    ),
+    "seaclubrush" to PlantData(
+        englishName = "Sea Clubrush",
+        croatianName = "Morska štapika",
+        latinName = "Bolboschoenus maritimus",
+        description = "Coastal sedge with underground tubers; tubers have been eaten historically in some regions.",
+        isEdible = true
+    ),
+    "seafig" to PlantData(
+        englishName = "Sea Fig (Hottentot Fig)",
+        croatianName = "Mesemb (smokva morska)",
+        latinName = "Carpobrotus edulis",
+        description = "Prostrate succulent forming mats on coasts; edible tart fruits and fleshy leaves (pickled/cooked).",
+        isEdible = true
+    ),
+    "smokebush" to PlantData(
+        englishName = "Smokebush",
+        croatianName = "Rujevina",
+        latinName = "Cotinus coggygria",
+        description = "Shrub/tree with plume-like inflorescences that look like smoke; leaves used for dye; not a food plant.",
         isEdible = false
-    ),
-    "oregano" to PlantData(
-        englishName = "Oregano",
-        croatianName = "Origano",
-        latinName = "Origanum vulgare",
-        description = "A perennial herb with aromatic leaves, widely used in Mediterranean cuisine. It produces small purple flowers and thrives in sunny, well-drained soils.",
-        isEdible = true
-    ),
-    "orange" to PlantData(
-        englishName = "Orange",
-        croatianName = "Naranča",
-        latinName = "Citrus × sinensis",
-        description = "A small evergreen tree producing sweet, juicy citrus fruits. Valued for its vitamin C content and fragrant blossoms.",
-        isEdible = true
-    ),
-    "papaya" to PlantData(
-        englishName = "Papaya",
-        croatianName = "Papaja",
-        latinName = "Carica papaya",
-        description = "A fast-growing tropical tree with large lobed leaves and sweet, orange-fleshed fruits. Known for its digestive enzyme papain.",
-        isEdible = true
-    ),
-    "papaversomniferum" to PlantData(
-        englishName = "Opium Poppy",
-        croatianName = "Opijumski mak",
-        latinName = "Papaver somniferum",
-        description = "An annual plant with large flowers and seed capsules used for culinary poppy seeds and in pharmaceutical production. Contains alkaloids with medicinal and narcotic properties.",
-        isEdible = true
-    ),
-    "parsley" to PlantData(
-        englishName = "Parsley",
-        croatianName = "Peršin",
-        latinName = "Petroselinum crispum",
-        description = "A biennial herb cultivated for its fresh green leaves, widely used as a garnish and seasoning. Also valued for its vitamin and mineral content.",
-        isEdible = true
-    ),
-    "peony" to PlantData(
-        englishName = "Peony",
-        croatianName = "Božur",
-        latinName = "Paeonia officinalis",
-        description = "A perennial plant with large, showy flowers in various colors. Grown mainly for ornamental purposes, with some historical medicinal uses.",
-        isEdible = false
-    ),
-    "peperchili" to PlantData(
-        englishName = "Chili Pepper",
-        croatianName = "Čili paprika",
-        latinName = "Capsicum annuum",
-        description = "A fruiting plant producing hot or sweet peppers, used fresh or dried in cooking. Capsaicin content gives chili peppers their characteristic heat.",
-        isEdible = true
-    ),
-    "pineapple" to PlantData(
-        englishName = "Pineapple",
-        croatianName = "Ananas",
-        latinName = "Ananas comosus",
-        description = "A tropical plant with spiky leaves and a large, sweet, aromatic fruit. Contains bromelain, an enzyme with digestive properties.",
-        isEdible = true
-    ),
-    "poppyanemone" to PlantData(
-        englishName = "Poppy Anemone",
-        croatianName = "Anemona",
-        latinName = "Anemone coronaria",
-        description = "A flowering plant producing vibrant red, white, or blue blooms. Popular in gardens and floral arrangements, not edible.",
-        isEdible = false
-    ),
-    "pomelo" to PlantData(
-        englishName = "Pomelo",
-        croatianName = "Pomelo",
-        latinName = "Citrus maxima",
-        description = "The largest citrus fruit, with a thick rind and sweet to mildly tart pulp. Consumed fresh or in salads.",
-        isEdible = true
-    ),
-    "portugueselaurel" to PlantData(
-        englishName = "Portuguese Laurel",
-        croatianName = "Portugalska lovorvišnja",
-        latinName = "Prunus lusitanica",
-        description = "An evergreen shrub or small tree with glossy leaves and fragrant white flowers. Commonly used as a hedge plant, parts are toxic if ingested.",
-        isEdible = false
-    ),
-    "paddy" to PlantData(
-        englishName = "Rice",
-        croatianName = "Riža",
-        latinName = "Oryza sativa",
-        description = "A staple cereal crop cultivated in flooded fields, producing edible grains. Consumed worldwide in numerous cuisines.",
-        isEdible = true
-    ),
-    "quincetree" to PlantData(
-        englishName = "Quince Tree",
-        croatianName = "Dunja",
-        latinName = "Cydonia oblonga",
-        description = "A deciduous tree bearing fragrant, yellow, pear-shaped fruits. Fruits are usually cooked or made into jams and jellies.",
-        isEdible = true
-    ),
-    "reedgrass" to PlantData(
-        englishName = "Reed Grass",
-        croatianName = "Trska",
-        latinName = "Phragmites australis",
-        description = "A tall perennial grass common in wetlands. Provides habitat for wildlife but not typically consumed by humans.",
-        isEdible = false
-    ),
-    "rockrose" to PlantData(
-        englishName = "Rock Rose",
-        croatianName = "Planinski bušin",
-        latinName = "Cistus ladanifer",
-        description = "A Mediterranean shrub with resinous, aromatic leaves and papery flowers. Known for producing labdanum resin used in perfumes.",
-        isEdible = false
-    ),
-    "rosemary" to PlantData(
-        englishName = "Rosemary",
-        croatianName = "Ružmarin",
-        latinName = "Salvia rosmarinus",
-        description = "An aromatic evergreen shrub with needle-like leaves used in cooking and herbal medicine. Thrives in sunny, dry locations.",
-        isEdible = true
-    ),
-    "rue" to PlantData(
-        englishName = "Rue",
-        croatianName = "Ruta",
-        latinName = "Ruta graveolens",
-        description = "A strongly aromatic herb with blue-green foliage, historically used in medicine and as a culinary herb in small amounts. Can be toxic in large doses.",
-        isEdible = true
-    ),
-    "scarletpimpernel" to PlantData(
-        englishName = "Scarlet Pimpernel",
-        croatianName = "Crveni pimpernel",
-        latinName = "Anagallis arvensis",
-        description = "A low-growing plant with small scarlet flowers. Considered a weed in many regions and not edible.",
-        isEdible = false
-    ),
-    "sealavender" to PlantData(
-        englishName = "Sea Lavender",
-        croatianName = "Morska lavanda",
-        latinName = "Limonium vulgare",
-        description = "A coastal perennial with clusters of small lavender-colored flowers. Grown for ornamental purposes, not edible.",
-        isEdible = false
-    ),
-    "snakeroot" to PlantData(
-        englishName = "Snakeroot",
-        croatianName = "Zmijska trava",
-        latinName = "Ageratina altissima",
-        description = "A perennial herb with clusters of small white flowers. Some species are toxic and have historically caused livestock poisoning.",
-        isEdible = false
-    ),
-    "snapdragon" to PlantData(
-        englishName = "Snapdragon",
-        croatianName = "Zmačac",
-        latinName = "Antirrhinum majus",
-        description = "An ornamental plant with tall spikes of colorful flowers that resemble a dragon’s mouth. Commonly used in gardens, not edible.",
-        isEdible = false
-    ),
-    "snowdrop" to PlantData(
-        englishName = "Snowdrop",
-        croatianName = "Visibaba",
-        latinName = "Galanthus nivalis",
-        description = "A small bulbous plant that blooms in late winter with delicate white flowers. Poisonous if ingested.",
-        isEdible = false
-    ),
-    "soybean" to PlantData(
-        englishName = "Soybean",
-        croatianName = "Soja",
-        latinName = "Glycine max",
-        description = "An annual legume producing protein-rich beans used for food, oil, and animal feed. Widely cultivated worldwide.",
-        isEdible = true
     ),
     "spanishbroom" to PlantData(
         englishName = "Spanish Broom",
         croatianName = "Španjolski žuk",
         latinName = "Spartium junceum",
-        description = "A perennial shrub with bright yellow flowers and slender green stems. Used ornamentally; toxic if ingested.",
+        description = "Leafless green stems with fragrant yellow flowers; contains toxic alkaloids; not edible.",
         isEdible = false
     ),
-    "spurge" to PlantData(
-        englishName = "Spurge",
-        croatianName = "Mliječ",
-        latinName = "Euphorbia",
-        description = "A large genus of plants with milky sap, often toxic. Includes both ornamental and weedy species.",
+    "spindle" to PlantData(
+        englishName = "Spindle",
+        croatianName = "Kurika (paklen)",
+        latinName = "Euonymus europaeus",
+        description = "Shrub with pink/orange capsules; attractive but poisonous fruits and seeds; historically used for spindles.",
+        isEdible = false
+    ),
+    "spinyasparagus" to PlantData(
+        englishName = "Spiny Asparagus",
+        croatianName = "Divlja šparoga (oštra)",
+        latinName = "Asparagus acutifolius",
+        description = "Dioecious, spiny Mediterranean asparagus; young spring shoots harvested as a prized wild vegetable.",
+        isEdible = true
+    ),
+    "spinyrestharrow" to PlantData(
+        englishName = "Spiny Restharrow",
+        croatianName = "Bodljikava roljika",
+        latinName = "Ononis spinosa",
+        description = "Spiny pink-flowered legume of dry grasslands; roots used medicinally as diuretic; not a food plant.",
+        isEdible = false
+    ),
+    "spinystarwort" to PlantData(
+        englishName = "Spiny Starwort",
+        croatianName = "Bodljikavi zvjezdan",
+        latinName = "Pallenis spinosa",
+        description = "Drought-tolerant annual with spiny bracts and yellow daisies; ornamental/wild; not edible.",
+        isEdible = false
+    ),
+    "springadonis" to PlantData(
+        englishName = "Spring Adonis",
+        croatianName = "Proljetni ranjenik",
+        latinName = "Adonis vernalis",
+        description = "Showy yellow-flowered steppe perennial; cardiac glycosides present; poisonous and not edible.",
         isEdible = false
     ),
     "stonepine" to PlantData(
         englishName = "Stone Pine",
-        croatianName = "Pinjol",
+        croatianName = "Pinj (pinija)",
         latinName = "Pinus pinea",
-        description = "An evergreen conifer native to the Mediterranean, producing edible pine nuts. Has an umbrella-shaped canopy.",
+        description = "Umbrella-shaped Mediterranean pine producing large edible pine nuts; valued ornamental and for nuts.",
         isEdible = true
     ),
     "strawberrytree" to PlantData(
         englishName = "Strawberry Tree",
-        croatianName = "Planika",
+        croatianName = "Planika (maginja)",
         latinName = "Arbutus unedo",
-        description = "An evergreen shrub or small tree with red, rough-skinned edible fruits. Often used for jams and liqueurs.",
+        description = "Evergreen with red, rough-skinned fruits ripening in autumn; fruits edible fresh or for jams and liqueurs.",
         isEdible = true
     ),
-    "sweetchestnut" to PlantData(
+    "sweatchestnut" to PlantData(
         englishName = "Sweet Chestnut",
         croatianName = "Pitomi kesten",
         latinName = "Castanea sativa",
-        description = "A large deciduous tree producing edible nuts enclosed in spiny husks. Valued for both timber and food.",
+        description = "Large chestnut valued for edible nuts (roasted, candied, flour) and durable timber; prefers acidic soils.",
         isEdible = true
     ),
-    "sweetpotato" to PlantData(
-        englishName = "Sweet Potato",
-        croatianName = "Batat",
-        latinName = "Ipomoea batatas",
-        description = "A perennial vine grown for its edible, sweet-tasting tubers. Leaves are also edible when cooked.",
+    "terebinth" to PlantData(
+        englishName = "Terebinth",
+        croatianName = "Terebint (crna tršlja)",
+        latinName = "Pistacia terebinthus",
+        description = "Deciduous Pistacia with resinous aroma; young shoots and galls used traditionally; edible uses regional.",
         isEdible = true
     ),
-    "tamarisk" to PlantData(
-        englishName = "Tamarisk",
-        croatianName = "Tamariš",
-        latinName = "Tamarix",
-        description = "A small tree or shrub with feathery branches and pink flowers. Used ornamentally and for erosion control, not edible.",
-        isEdible = false
-    ),
-    "thyme" to PlantData(
-        englishName = "Thyme",
-        croatianName = "Timijan",
-        latinName = "Thymus vulgaris",
-        description = "A low-growing aromatic herb used for seasoning. Thrives in sunny, dry conditions and attracts pollinators.",
+    "trailingbellflower" to PlantData(
+        englishName = "Trailing Bellflower",
+        croatianName = "Viseća zvončika",
+        latinName = "Campanula poscharskyana",
+        description = "Trailing alpine bellflower used as groundcover; young leaves and flowers mild and edible.",
         isEdible = true
     ),
-    "tobacco" to PlantData(
-        englishName = "Tobacco",
-        croatianName = "Duhan",
-        latinName = "Nicotiana tabacum",
-        description = "A tall annual plant cultivated for its leaves, which are processed for smoking and nicotine extraction. Poisonous if ingested raw.",
-        isEdible = false
-    ),
-    "torreya" to PlantData(
-        englishName = "Torreya",
-        croatianName = "Toreja",
-        latinName = "Torreya nucifera",
-        description = "A slow-growing conifer with edible seeds in some species. Wood is valued in traditional crafts.",
-        isEdible = true
-    ),
-    "treeHeath" to PlantData(
+    "treeheath" to PlantData(
         englishName = "Tree Heath",
-        croatianName = "Drvenasti vrijes",
+        croatianName = "Bijeli vrijes",
         latinName = "Erica arborea",
-        description = "An evergreen shrub or small tree with white or pink flowers. Known for its hard root wood used in making pipes.",
+        description = "Evergreen shrub/tree with tiny leaves and white bells; used for briar pipes (root burl); not a food plant.",
         isEdible = false
     ),
-    "treemallow" to PlantData(
-        englishName = "Tree Mallow",
-        croatianName = "Drvenasti sljez",
-        latinName = "Malva arborea",
-        description = "A tall perennial plant with purple-pink flowers. Leaves and young shoots are edible when cooked.",
+    "turkeyoak" to PlantData(
+        englishName = "Turkey Oak",
+        croatianName = "Cerić (medunac istočni)",
+        latinName = "Quercus cerris",
+        description = "Fast-growing oak with bristly acorn cups; acorns high in tannins; edible only after thorough processing.",
         isEdible = true
     ),
-    "trumpetcreeper" to PlantData(
-        englishName = "Trumpet Creeper",
-        croatianName = "Trubasta lozica",
-        latinName = "Campsis radicans",
-        description = "A vigorous climbing plant with large trumpet-shaped orange-red flowers. Used ornamentally, not edible.",
+    "wayfaringtree" to PlantData(
+        englishName = "Wayfaring Tree",
+        croatianName = "Glogovac (kalina krupnolisna)",
+        latinName = "Viburnum lantana",
+        description = "Shrub with felted leaves and red-to-black berries; fruits are mildly toxic/raw and not used as food.",
         isEdible = false
     ),
-    "valerian" to PlantData(
-        englishName = "Valerian",
-        croatianName = "Valerijana",
-        latinName = "Valeriana officinalis",
-        description = "A perennial plant with clusters of small fragrant flowers. Roots are used medicinally as a mild sedative.",
-        isEdible = true
-    ),
-    "wallflower" to PlantData(
-        englishName = "Wallflower",
-        croatianName = "Zidni cvijet",
-        latinName = "Erysimum cheiri",
-        description = "A fragrant biennial or perennial with yellow to orange flowers. Grown ornamentally, not edible.",
-        isEdible = false
-    ),
-    "watermint" to PlantData(
-        englishName = "Water Mint",
-        croatianName = "Vodena metvica",
-        latinName = "Mentha aquatica",
-        description = "A perennial herb found in damp habitats, with aromatic leaves used for teas and flavoring.",
-        isEdible = true
-    ),
-    "watermelon" to PlantData(
-        englishName = "Watermelon",
-        croatianName = "Lubenica",
-        latinName = "Citrullus lanatus",
-        description = "A sprawling annual plant producing large, juicy fruits with sweet red or yellow flesh. Popular in summer.",
-        isEdible = true
-    ),
-    "whiteasphodel" to PlantData(
-        englishName = "White Asphodel",
-        croatianName = "Bijeli asfodel",
-        latinName = "Asphodelus albus",
-        description = "A perennial with tall flower spikes of star-shaped white blooms. Roots were historically eaten but are not common today.",
-        isEdible = true
-    ),
-    "wildcarrot" to PlantData(
-        englishName = "Wild Carrot",
-        croatianName = "Divlja mrkva",
-        latinName = "Daucus carota",
-        description = "A biennial plant with finely divided leaves and white umbel flowers. Root is edible when young but becomes woody with age.",
-        isEdible = true
-    ),
-    "rose" to PlantData(
-        englishName = "Rose",
-        croatianName = "Ruža",
-        latinName = "Rosa",
-        description = "A woody perennial flowering plant with fragrant blooms in many colors. Petals are edible and often used in culinary products.",
-        isEdible = true
-    ),
-    "wintersavory" to PlantData(
-        englishName = "Winter Savory",
-        croatianName = "Vrisak",
-        latinName = "Satureja montana",
-        description = "A perennial herb with a peppery flavor, used for seasoning meats and beans. Thrives in sunny, dry soils.",
-        isEdible = true
-    ),
-    "wisteria" to PlantData(
-        englishName = "Wisteria",
-        croatianName = "Glicinija",
-        latinName = "Wisteria sinensis",
-        description = "A climbing vine with cascading clusters of purple or white flowers. All parts except flowers are toxic.",
-        isEdible = false
-    ),
-    "yewtree" to PlantData(
-        englishName = "Yew Tree",
-        croatianName = "Tisa",
-        latinName = "Taxus baccata",
-        description = "An evergreen conifer with red berry-like arils. All parts except the fleshy aril are highly toxic.",
-        isEdible = false
-    ),
-    "yucca" to PlantData(
-        englishName = "Yucca",
-        croatianName = "Juka",
-        latinName = "Yucca filamentosa",
-        description = "A perennial shrub with sword-like leaves and tall spikes of white flowers. Flowers and fruits are edible in some species.",
-        isEdible = true
-    ),
-    "ziziphus" to PlantData(
-        englishName = "Jujube",
-        croatianName = "Cikla",
-        latinName = "Ziziphus jujuba",
-        description = "A small deciduous tree producing sweet, date-like fruits. Eaten fresh, dried, or used in herbal remedies.",
-        isEdible = true
-    ),
-    "zucchiniplant" to PlantData(
-        englishName = "Zucchini",
-        croatianName = "Tikvica",
-        latinName = "Cucurbita pepo",
-        description = "A summer squash with tender edible fruits harvested when immature. Versatile in cooking and easy to grow.",
+    "yellowonion" to PlantData(
+        englishName = "Yellow Onion",
+        croatianName = "Luk",
+        latinName = "Allium cepa",
+        description = "Bulb onion cultivated worldwide; pungent when raw, sweet when caramelized; staple culinary vegetable.",
         isEdible = true
     )
 )
