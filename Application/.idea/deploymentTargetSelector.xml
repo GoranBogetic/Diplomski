@@ -2,7 +2,7 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="plantFinder">
+      <SelectionState runConfigName="Plant_Finder App">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
