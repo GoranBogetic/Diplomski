@@ -15,7 +15,7 @@ VAL_DIR = os.path.join(DATABASE_DIR, 'val')
 
 LICENSES = ["cc0", "cc-by"]   # only fetch images with these licenses from API
 PER_PAGE = 200
-MAX_IMAGES_PER_SPECIES = 800
+MAX_IMAGES_PER_SPECIES = 12
 MAX_PAGES = 20
 VAL_SPLIT = 0.125
 GLOBAL_THREADS = 160  # global thread pool size
@@ -95,12 +95,12 @@ def processSpecies(species, attributionFile):
                 if license_code in ["cc0", "cc-by"]:
                     fileName = f"{speciesName}_{count + len(downloadTasks)}.jpg"
                     filePath = os.path.join(speciesFolder, fileName)
-                    future = GLOBAL_EXECUTOR.submit(downloadImage, photoUrl, filePath)
-                    downloadTasks.append((future, photoUrl, filePath))
+                    task = GLOBAL_EXECUTOR.submit(downloadImage, photoUrl, filePath)
+                    downloadTasks.append((task, photoUrl, filePath))
 
         # Collect results
-        for future, url, filePath in downloadTasks:
-            if future.result():
+        for task, url, filePath in downloadTasks:
+            if task.result():
                 allDownloadedFiles.append((url, filePath))
                 count += 1
 

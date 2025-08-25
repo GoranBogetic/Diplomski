@@ -40,12 +40,15 @@ def downloadImagesForFolder(speciesName, urls, outDir):
         if os.path.exists(filePath):
             continue
 
-        future = GLOBAL_EXECUTOR.submit(downloadImage, url, filePath)
-        downloadTasks.append((future, url))
+        task = GLOBAL_EXECUTOR.submit(downloadImage, url, filePath)
+        downloadTasks.append((task, url))
 
-    for future, url in as_completed(dict(downloadTasks)):
+    taskToUrl = {task: url for task, url in downloadTasks}
+    for future in as_completed(taskToUrl):
+        url = taskToUrl[future]
         if future.result():
             count += 1
+
 
     print(f"Downloaded {count} images for {speciesName} in {outDir}")
     return count
