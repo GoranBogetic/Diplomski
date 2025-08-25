@@ -15,7 +15,7 @@ VAL_DIR = os.path.join(DATABASE_DIR, 'val')
 
 LICENSES = ["cc0", "cc-by"]   # only fetch images with these licenses from API
 PER_PAGE = 200
-MAX_IMAGES_PER_SPECIES = 12
+MAX_IMAGES_PER_SPECIES = 800
 MAX_PAGES = 20
 VAL_SPLIT = 0.125
 GLOBAL_THREADS = 160  # global thread pool size
