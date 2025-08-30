@@ -1,1 +1,1 @@
-APK link https://fesb-my.sharepoint.com/:u:/g/personal/gboget00_fesb_hr/EedcHsXKaWNKoC0laBvIK-MBiASPsxVqkr7T5_pGx10YmQ?e=WsiV8z
+APK with application named app-debug.apk can be downloaded from [here](https://fesb-my.sharepoint.com/:u:/g/personal/gboget00_fesb_hr/EeDeSSBf0A1Lr-Ajz5gDpbABd-GnlJI7gDVrPk_wrzepfA?e=iXcbVp).
