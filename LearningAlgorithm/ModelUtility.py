@@ -33,7 +33,7 @@ def convertModelToAndroidModel(model, modelWeightsPath, androidModelPath, androi
     try:
         model.eval()
         modelCpu = model.to('cpu')
-        exampleInput = torch.rand(1, 3, 224, 224)
+        exampleInput = torch.rand(1, 3, 300, 300)
         tracedModel = torch.jit.trace(modelCpu, exampleInput)
 
         tracedModel.save(androidModelPath)
