@@ -302,7 +302,7 @@ class MainActivity : AppCompatActivity() {
                 bitmapToProcess = bitmap
             }
 
-            val resizedBitmap = Bitmap.createScaledBitmap(bitmapToProcess, 224, 224, true)
+            val resizedBitmap = Bitmap.createScaledBitmap(bitmapToProcess, 300, 300, true)
             val inputTensor = TensorImageUtils.bitmapToFloat32Tensor(
                 resizedBitmap,
                 TensorImageUtils.TORCHVISION_NORM_MEAN_RGB,
