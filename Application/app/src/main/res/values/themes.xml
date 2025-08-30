@@ -1,15 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.PlantFinder" parent="Theme.MaterialComponents.DayNight.NoActionBar"> <!-- Or your chosen parent -->
-        <!-- Primary brand color. -->
+        <!-- Primary color. -->
         <item name="colorPrimary">@color/brand_green_primary</item>
         <item name="colorPrimaryVariant">@color/brand_green_dark</item>
         <item name="colorOnPrimary">@color/neutral_white</item>
 
-        <!-- Secondary brand color. -->
-        <!-- You can use another shade of green or a complementary color -->
+        <!-- Secondary color. -->
         <item name="colorSecondary">@color/brand_green_accent</item>
-        <item name="colorSecondaryVariant">@color/brand_green_dark</item> <!-- Or another shade -->
+        <item name="colorSecondaryVariant">@color/brand_green_dark</item>
         <item name="colorOnSecondary">@color/neutral_black</item>
 
         <!-- Status bar color. -->
@@ -22,7 +21,6 @@
         <item name="colorOnSurface">@color/neutral_black</item>
     </style>
 
-    <!-- If you have a separate FullScreen theme, ensure it also uses greens -->
     <style name="Theme.PlantFinder.FullScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/brand_green_primary</item>
         <item name="colorPrimaryVariant">@color/brand_green_dark</item>

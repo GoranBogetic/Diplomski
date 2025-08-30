@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Pressed state: shrink scale to 0.9 -->
+    <!-- Pressed state: shrink scale to 0.95 -->
     <item android:state_pressed="true">
         <set>
             <objectAnimator

@@ -26,7 +26,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.pytorch.IValue
 import org.pytorch.Module
@@ -40,10 +39,6 @@ import java.util.concurrent.Executors
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
-
-import com.example.plantfinder.plantInfo
-import com.example.plantfinder.PlantData
 
 class MainActivity : AppCompatActivity() {
 

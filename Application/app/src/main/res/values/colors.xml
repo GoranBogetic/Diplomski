@@ -1,19 +1,19 @@
 <resources>
-    <!-- Brand Greens -->
-    <color name="brand_green_primary">#4CAF50</color>         <!-- Was: primary (Light Green) -->
-    <color name="brand_green_dark">#388E3C</color>          <!-- Was: primaryVariant (Darker Green) -->
-    <color name="brand_green_accent">#A5D6A7</color>        <!-- Was: secondary (Accent Green) -->
+    <!-- Greens -->
+    <color name="brand_green_primary">#4CAF50</color>
+    <color name="brand_green_dark">#388E3C</color>
+    <color name="brand_green_accent">#A5D6A7</color>
 
     <!-- Neutral & Background Colors -->
-    <color name="neutral_white">#FFFFFF</color>             <!-- Was: background, onPrimary (White) -->
-    <color name="neutral_black">#000000</color>             <!-- Was: onSecondary, onBackground, onSurface (Black) -->
-    <color name="background_app">#FFFFFF</color>           <!-- Explicit name for main app background -->
-    <color name="background_surface_light_green">#F1F8E9</color> <!-- Was: surface (Light planty background) -->
+    <color name="neutral_white">#FFFFFF</color>
+    <color name="neutral_black">#000000</color>
+    <color name="background_app">#FFFFFF</color>
+    <color name="background_surface_light_green">#F1F8E9</color>
 
-    <!-- Text Colors (can be aliases of neutrals or specific if needed) -->
-    <color name="text_on_brand_primary">#FFFFFF</color>   <!-- Was: onPrimary (White text on green) -->
-    <color name="text_on_brand_accent">#000000</color>    <!-- Was: onSecondary (Black text on secondary) -->
-    <color name="text_on_background">#000000</color>       <!-- Was: onBackground -->
+    <!-- Text Colors -->
+    <color name="text_on_brand_primary">#FFFFFF</color>
+    <color name="text_on_brand_accent">#000000</color>
+    <color name="text_on_background">#000000</color>
     <color name="text_on_surface">#000000</color>
 
     <color name="icon_color_on_green_button">#FFFFFF</color>
