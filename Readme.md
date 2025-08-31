@@ -79,9 +79,9 @@ File-by-file short explanation
 
     - Models/AndroidModel/plant_classifier_efficientnetb3.ptl — TorchScript model for Android.
 
-    - TrainingFeedback/TrainingPlot.png (generated after LearningAlforithm) — Loss and validation accuracy over epochs.
+    - TrainingFeedback/TrainingPlot.png (generated after LearningAlgorithm has finished executing) — Loss and validation accuracy over epochs.
 
-    - TrainingFeedback/ValAccuracyperEpoch.txt (generated after LearningAlforithm) — Per-epoch validation accuracy log.
+    - TrainingFeedback/ValAccuracyperEpoch.txt (generated after LearningAlgorithm has finished executing) — Per-epoch validation accuracy log.
 
 - Android application
     - Application/app/src/main/AndroidManifest.xml — CAMERA and media-read permissions; launcher activity.
