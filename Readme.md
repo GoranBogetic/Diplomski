@@ -11,15 +11,19 @@ If not installed already run following command:
 
 - pip install torch torchvision matplotlib requests
 
-\
-\
-(Optional) Reconstruct the dataset from logs run:
 
+## Useful commands
+Database can be made from scratch or reconstructed.\
+Run for creating databse from scratch:
+- python .\Utility\DatabaseCreator.py
+
+Run for databse reconstruction:
 - python .\Utility\DatabaseReconstructor.py
 
 \
 \
-Train and export the model for Android run:
+Train and export the model for Android run\
+(Having a databse is a precondition for running this):
 
 - python .\LearningAlgorithm\main.py
 
